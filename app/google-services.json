@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "647199184518",
+    "firebase_url": "https://edusoft-1b8b7.firebaseio.com",
+    "project_id": "edusoft-1b8b7",
+    "storage_bucket": "edusoft-1b8b7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647199184518:android:74b47bb6a73c69cbd46307",
+        "android_client_info": {
+          "package_name": "com.sharon.edusoft"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "647199184518-didj498t67akmt187l5mrvta6kgnalv0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sharon.edusoft",
+            "certificate_hash": "bcaad18eade951df8a94282ef4b5dce29f49d7dd"
+          }
+        },
+        {
+          "client_id": "647199184518-n0ekbhugu6uqntctcd4g6ci4v9pfpnc9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDq6vEJApOi5TKCHRgMwES2j0hPHByWdi4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "647199184518-n0ekbhugu6uqntctcd4g6ci4v9pfpnc9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
