@@ -19,9 +19,9 @@ public class HomeViewPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         Fragment fragment = null;
         if (position == 1) {
-            fragment = new SubscriptionFeedFragment();
-        } else if (position == 0) {
             fragment = new CategoriesFragment();
+        } else if (position == 0) {
+            fragment = new SubscriptionFeedFragment();
         }
         return fragment;
     }

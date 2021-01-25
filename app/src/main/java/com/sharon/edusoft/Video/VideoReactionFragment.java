@@ -36,7 +36,7 @@ import java.util.HashMap;
 public class VideoReactionFragment extends Fragment {
 
     private CardView cvVideoLike, cvVideoDislike;
-    private TextView tvVideoLike, tvVideoDislike;
+    private TextView videoLike, videoDislike;
     private ImageView ivVideoLike, ivVideoDislike;
 
     private DatabaseReference mDatabase;
@@ -77,8 +77,8 @@ public class VideoReactionFragment extends Fragment {
 
         cvVideoDislike = view.findViewById(R.id.cvVideoDislike);
         cvVideoLike = view.findViewById(R.id.cvVideoLike);
-        tvVideoLike = view.findViewById(R.id.tvVideoLike);
-        tvVideoDislike = view.findViewById(R.id.tvVideoDislike);
+        videoLike = view.findViewById(R.id.VideoLike);
+        videoDislike = view.findViewById(R.id.VideoDislike);
         ivVideoLike = view.findViewById(R.id.ivVideoLike);
         ivVideoDislike = view.findViewById(R.id.ivVideoDislike);
 
@@ -147,25 +147,25 @@ public class VideoReactionFragment extends Fragment {
 
     private void setLikeColorNormal() {
         cvVideoLike.setBackgroundResource(R.drawable.cardview_border_bg);
-        tvVideoLike.setTextColor(Color.BLACK);
+        videoLike.setTextColor(Color.BLACK);
         ivVideoLike.setImageTintList(ColorStateList.valueOf(Color.BLACK));
     }
 
     private void setLikeColorBlue() {
         cvVideoLike.setBackgroundResource(R.drawable.cardview_blue_bg);
-        tvVideoLike.setTextColor(Color.WHITE);
+       videoLike.setTextColor(Color.WHITE);
         ivVideoLike.setImageTintList(ColorStateList.valueOf(Color.WHITE));
     }
 
     private void setDislikeColorNormal() {
         cvVideoDislike.setBackgroundResource(R.drawable.cardview_border_bg);
-        tvVideoDislike.setTextColor(Color.BLACK);
+        videoDislike.setTextColor(Color.BLACK);
         ivVideoDislike.setImageTintList(ColorStateList.valueOf(Color.BLACK));
     }
 
     private void setDislikeColorOrange() {
-        cvVideoDislike.setBackgroundResource(R.drawable.cardview_orange_bg);
-        tvVideoDislike.setTextColor(Color.WHITE);
+        cvVideoDislike.setBackgroundResource(R.drawable.cardview_red_bg);
+        videoDislike.setTextColor(Color.WHITE);
         ivVideoDislike.setImageTintList(ColorStateList.valueOf(Color.WHITE));
     }
 
@@ -244,9 +244,9 @@ public class VideoReactionFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     video_dislike_count= (int) dataSnapshot.getChildrenCount();
-                    tvVideoDislike.setText(String.valueOf(video_dislike_count));
+                    videoDislike.setText(String.valueOf(video_dislike_count));
                 } else {
-                    tvVideoDislike.setText("Dislike");
+                    videoDislike.setText("Dislike");
                 }
             }
 
@@ -265,9 +265,9 @@ public class VideoReactionFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     video_like_count = (int) dataSnapshot.getChildrenCount();
-                    tvVideoLike.setText(String.valueOf(video_like_count));
+                    videoLike.setText(String.valueOf(video_like_count));
                 } else {
-                    tvVideoLike.setText("Like");
+                    videoLike.setText("Like");
                 }
             }
 

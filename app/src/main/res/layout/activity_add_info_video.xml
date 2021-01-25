@@ -67,7 +67,7 @@
                 android:ems="10"
                 android:hint="Video title"
                 android:inputType="textPersonName" />
-
+         
             <TextView
                 android:id="@+id/textView20"
                 android:layout_width="match_parent"

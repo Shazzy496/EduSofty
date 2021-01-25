@@ -13,12 +13,13 @@ public class SubscriptionFeeds {
     private int videoWidth;
     private long videoDuration;
     private long timestamp;
+    private int videoViews;
 
     SubscriptionFeeds() {
 
     }
 
-    public SubscriptionFeeds(String video_id, String user_id, String video, String videoThumbnail, String videoCategory, String videoTitle, String videoDescription, int videoHeight, int videoWidth, long videoDuration, long timestamp) {
+    public SubscriptionFeeds(String video_id, String user_id, String video, String videoThumbnail, String videoCategory, String videoTitle, String videoDescription, int videoHeight, int videoWidth, long videoDuration, long timestamp,int videoViews) {
         this.video_id = video_id;
         this.user_id = user_id;
         this.video = video;
@@ -30,6 +31,7 @@ public class SubscriptionFeeds {
         this.videoWidth = videoWidth;
         this.videoDuration = videoDuration;
         this.timestamp = timestamp;
+        this.videoViews=videoViews;
     }
 
     public String getVideo_id() {
@@ -118,5 +120,13 @@ public class SubscriptionFeeds {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public int getVideoViews() {
+        return videoViews;
+    }
+
+    public void setVideoViews(int videoViews) {
+        this.videoViews = videoViews;
     }
 }

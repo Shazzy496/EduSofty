@@ -29,7 +29,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.sharon.edusoft.Utils.Variables;
 
 import java.io.File;
 import java.util.HashMap;
@@ -37,7 +36,7 @@ import java.util.HashMap;
 
 public class VideoUploadActivity extends AppCompatActivity {
 
-    private TextView tvUploadVideoMessage;
+    private TextView UploadVideoMessage,pause,cancel;
     private ProgressBar pbVideoUpload;
 
     private DatabaseReference mDatabase;
@@ -75,7 +74,9 @@ public class VideoUploadActivity extends AppCompatActivity {
         videoWidth = bundle.getInt("videoWidth");
         videoDuration = bundle.getLong("videoDuration");
 
-        tvUploadVideoMessage = findViewById(R.id.tvUploadVideoMessage);
+        UploadVideoMessage = findViewById(R.id.uploadVideoMessage);
+        pause=findViewById(R.id.pause);
+        cancel=findViewById(R.id.cancel);
         pbVideoUpload = findViewById(R.id.pbVideoUpload);
 
         pbVideoUpload.setIndeterminate(false);
@@ -106,24 +107,6 @@ public class VideoUploadActivity extends AppCompatActivity {
             final String[] videoThumbnailDownloadUrl = {null};
 
             if (!videoThumbnailUri.toString().equals("")) {
-                /*
-                File mFileVideoThumbnail = new File(videoThumbnailUri.getPath());
-                Log.d("mFileVideoThumbnail", String.valueOf(mFileVideoThumbnail));
-                try {
-                    mCompressedVideoThumbnail = new Compressor(VideoUploadActivity.this).setQuality(15).compressToBitmap(mFileVideoThumbnail);
-                    Log.d("videoCompressThumbIn", String.valueOf(mCompressedVideoThumbnail));
-                } catch (IOException e) {
-                    Log.d("videoCompressThumbE", e.getMessage());
-                    e.printStackTrace();
-                }
-
-                Log.d("videoCompressThumbOut", String.valueOf(mCompressedVideoThumbnail));
-
-                ByteArrayOutputStream mProfileBAOS = new ByteArrayOutputStream();
-                mCompressedVideoThumbnail.compress(Bitmap.CompressFormat.JPEG, 15, mProfileBAOS);
-                byte[] mProfileData = mProfileBAOS.toByteArray();
-
-                 */
 
                 final StorageReference mChildRefVideoThumbnail = storageReference.child("videos/" + videoId + "/videoThumbnail/" + videoId + ".jpg");
 
@@ -204,7 +187,6 @@ public class VideoUploadActivity extends AppCompatActivity {
                                 mVideoThumbnailDataMap.put("videoDuration", videoDuration);
                                 mVideoThumbnailDataMap.put("videoCategory", videoCategory);
                                 mVideoThumbnailDataMap.put("videoDescription", videoDesc);
-                                mVideoThumbnailDataMap.put("channelId", Variables.selected_channel_id);
 
 
                                 mDatabase.child("videos").child(videoId).updateChildren(mVideoThumbnailDataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -235,7 +217,7 @@ public class VideoUploadActivity extends AppCompatActivity {
                     pbVideoUpload.setIndeterminate(false);
                     int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
                     pbVideoUpload.setProgress(progress);
-                    tvUploadVideoMessage.setText("Uploading Video... " + String.valueOf(progress) + "%");
+                    UploadVideoMessage.setText("Uploading Video... " + String.valueOf(progress) + "%");
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override

@@ -6,12 +6,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.sharon.edusoft.SetupAccount.SetupAccountNameActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -23,16 +27,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.sharon.edusoft.SetupAccount.SetupAccountImageActivity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity{
 
     private EditText etRegisterEmail, etRegisterPassword, name;
     private Button registerbutton;
     private ProgressBar loginPB;
 
-    private String email, password, Name;
+    private String Email, password, Name,user_id;
 
     private DatabaseReference mDatabase;
     private FirebaseUser currentUser;
@@ -50,6 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
         name = findViewById(R.id.name);
         registerbutton = findViewById(R.id.registerbutton);
         loginPB = findViewById(R.id.loginPB);
+
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
@@ -69,16 +77,18 @@ public class RegisterActivity extends AppCompatActivity {
                 registerUser();
             }
         });
+
+
     }
 
     private void registerUser() {
-        email = etRegisterEmail.getText().toString();
+        Email = etRegisterEmail.getText().toString();
         password = etRegisterPassword.getText().toString();
         Name=name.getText().toString();
         loginPB.setVisibility(View.VISIBLE);
         registerbutton.setVisibility(View.GONE);
 
-        if (email.isEmpty()) {
+        if (Email.isEmpty()) {
             loginPB.setVisibility(View.GONE);
             registerbutton.setVisibility(View.VISIBLE);
             etRegisterEmail.setError("Please enter your email");
@@ -91,25 +101,36 @@ public class RegisterActivity extends AppCompatActivity {
             registerbutton.setVisibility(View.VISIBLE);
             name.setError("Please enter your name");
         } else if(password.length()<8){
-            etRegisterPassword.setError("Password should be than 8 characters");
+            etRegisterPassword.setError("Password should be more than 8 characters");
         }
         else {
-            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            mAuth.createUserWithEmailAndPassword(Email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
+                        String Name=name.getText().toString();
+                        String Email=etRegisterEmail.getText().toString();
+
                         HashMap<String, Object> mDataMap = new HashMap<>();
-                        mDataMap.put("email", email);
-                        mDataMap.put("name", name);
+                        mDataMap.put("Email", Email);
+                        mDataMap.put("Name", Name);
                         mDataMap.put("user_id", task.getResult().getUser().getUid());
-                        mDatabase.child("users").child(task.getResult().getUser().getUid()).setValue(mDataMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                sendToSetup();
-                                loginPB.setVisibility(View.GONE);
-                            }
-                        });
-                    } else {
+
+                        mDatabase.child("registration").child(task.getResult().getUser().getUid()).setValue(mDataMap)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        loginPB.setVisibility(View.GONE);
+                                        registerbutton.setVisibility(View.VISIBLE);
+                                        Intent intent=new Intent(RegisterActivity.this, SetupAccountImageActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                        startActivity(intent);
+                                    }
+                                }
+
+                        );
+                    }
+                    else {
                         loginPB.setVisibility(View.GONE);
                         registerbutton.setVisibility(View.VISIBLE);
                         Toast.makeText(getApplicationContext(), "Error: " + task.getException(), Toast.LENGTH_LONG).show();
@@ -126,16 +147,12 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    private void sendToSetup() {
-        Intent mainIntent = new Intent(RegisterActivity.this, SetupAccountNameActivity.class);
-        startActivity(mainIntent);
-        finish();
-    }
 
     private void sendToMain() {
         Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
         startActivity(mainIntent);
         finish();
     }
+
 }
  

@@ -91,6 +91,8 @@ public class SubscriptionFeedFragment extends Fragment {
         linearLayoutManager.setStackFromEnd(true);
         linearLayoutManager.setReverseLayout(true);
 
+
+
         if (currentUser != null) {
             user_id = currentUser.getUid();
 

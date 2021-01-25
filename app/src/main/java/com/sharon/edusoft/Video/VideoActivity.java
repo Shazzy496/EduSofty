@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.NotificationCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -15,44 +14,41 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
-import android.provider.MediaStore;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.util.Log;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.sharon.edusoft.Channel.ChannelActivity;
+import com.sharon.edusoft.Home.SubscriptionFeeds.SubscriptionFeeds;
+import com.sharon.edusoft.Home.SubscriptionFeeds.SubscriptionFeedsAdapter;
 import com.sharon.edusoft.R;
+import com.sharon.edusoft.SetupAccount.RegisteredUsers;
 import com.sharon.edusoft.Video.VideoComments.VideoComments;
 import com.sharon.edusoft.Video.VideoComments.VideoCommentsAdapter;
 import com.sharon.edusoft.Video.VideoComments.VideoCommentsFragment;
@@ -69,15 +65,16 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.IOException;
-import java.net.URL;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -94,20 +91,23 @@ public class VideoActivity extends AppCompatActivity {
     private FrameLayout flVideoComment1, flVideoComments, videoFL;
 
     private ImageView ivVideoBG;
-    private TextView VideoTitle, VideoDateUploaded, VideoChannelName, VideoNoComments, VideoDesc, VideoCategoryName, VideoViews;
+    private TextView VideoTitle, VideoDateUploaded, VideoChannelName, VideoNoComments, VideoDesc, VideoCategoryName,VideoCommentPersonName;
     private CircleImageView civVideoChannelProfilePic, civVideoCommentProfilePic, civVideoCommentProfilePic2;
     private CardView cvVideoChannel;
     private NestedScrollView nswVideoDetails;
 
-
+    private RatingBar ratingBar;
+    private TextView ratings;
     private VideoView vvVideo;
     private ProgressBar pbVideo;
     private SeekBar sbVideo;
     private TextView VideoDuration, VideoCurrentVIdeoTIme;
-    private ImageButton ibVideoPlayPause, ibVideoFullScreen,imageButton3;
+    private ImageButton ibVideoPlayPause, ibVideoFullScreen,settings;
     private FrameLayout flVideoBottomPanel;
+    private NestedScrollView nestedScrollView;
 
     private DatabaseReference mDatabase;
+    private DatabaseReference mDatabase1;
     private FirebaseUser currentUser;
     private FirebaseAuth mAuth;
     private FirebaseStorage mStorage;
@@ -118,35 +118,24 @@ public class VideoActivity extends AppCompatActivity {
     private VideoCommentsAdapter videoCommentsAdapter;
     private LinearLayoutManager linearLayoutManager;
 
-    private String profile_pic;
-    private String user_id;
+    private String profile_pic,channel_name, user_id,channel_id;
     String videoUri;
-    private String video_title;
-    private String video_desc;
     private Uri video;
-    private String video_thumbnail;
-    private String video_user_id;
-    private String video_category_name;
-    private long video_width;
-    private long video_height;
-    private String channel_name, comment_id;
-    private long video_uploaded_date;
-    private String videoId;
-    private long video_duration;
+    private String video_thumbnail,video_user_id,video_category_name,comment_id,videoId,video_desc,video_title,producer,rate_id;
+    private long video_uploaded_date,video_duration;
     private int stopPosition;
     public boolean openRepliesFragment = false, isVideoPlaying = true;
-    private String video_id;
-    public int videoProgess;
-
-
-
+    public int videoProgess,video_width,video_height,mCurrentPosition=0;
+    public  static final String PLAYBACK_TIME="play-time";
+    private SubscriptionFeedsAdapter subscriptionFeedsAdapter;
     MediaPlayer mediaPlayer;
     Handler mHandler;
+    private Runnable mRunnable;
+    float myRatings;
+    int count=1;
+    private TextView rate;
 
     MediaSessionCompat mediaSessionCompat;
-    NotificationManager notificationManager;
-    PendingIntent pausePendingIntent, replay10sPendingIntent, forward10sPendingIntent, likePendingIntent, dislikePendingIntent;
-
     private static final int CONTENT_VIEW_ID_FOR_VIDEO = 1;
     private static final int CONTENT_VIEW_ID_FOR_REACTION = 2;
 
@@ -157,43 +146,33 @@ public class VideoActivity extends AppCompatActivity {
     private VideoReactionFragment videoReactionFragment;
     private VideoCommentsFragment videoCommentsFragment;
 
-
-
-
-
-
-
-
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
-
         mContext = VideoActivity.this;
-
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-
-        MediaPlayer mediaPlayer=MediaPlayer.create(this, Uri.parse(String.valueOf(video)));
 
 
         Bundle bundle = getIntent().getExtras();
-        videoId = bundle.getString("video_id");
-        stopPosition =bundle.getInt("stopPosition");
+        videoId =bundle.get("video_id").toString();
+        video_user_id=bundle.get("video_user_id").toString();
         video_duration = bundle.getLong("video_duration");
-        video = Uri.parse(bundle.getString("video"));
+        video = Uri.parse(bundle.get("video").toString());
+
+
+        if (savedInstanceState!=null){
+            mCurrentPosition=savedInstanceState.getInt(PLAYBACK_TIME);
+        }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(openRepliesFragmentBroadcastReceiver,
                 new IntentFilter("openRepliesFragment"));
-
         Bundle setVideoPLayerBundle = new Bundle();
-        setVideoPLayerBundle.putString("video_id", videoId);
+        setVideoPLayerBundle.putString("video_id", String.valueOf(videoId));
         setVideoPLayerBundle.putString("video_duration", String.valueOf(video_duration));
         setVideoPLayerBundle.putString("video", String.valueOf(video));
         setVideoPLayerBundle.putString("stopPosition", String.valueOf(stopPosition));
-        setVideoPLayerBundle.putString("video_user_id", video_user_id);
+        setVideoPLayerBundle.putString("video_user_id", String.valueOf(video_user_id));
 
         videoPlayerFragment = new VideoPlayerFragment();
         videoReactionFragment = new VideoReactionFragment();
@@ -206,43 +185,56 @@ public class VideoActivity extends AppCompatActivity {
         fragmentTransaction.add(R.id.flVideoComments, videoCommentsFragment, "HELLO-COMMENTS");
 
         fragmentTransaction.commit();
-
+        VideoCommentPersonName=findViewById(R.id.VideoCommentPersonName);
+        rate=findViewById(R.id.feedback);
+        ratingBar=findViewById(R.id.ratingBar);
+        ratings=findViewById(R.id.ratings);
         ivVideoBG = findViewById(R.id.ivVideoBG);
         nswVideoDetails = findViewById(R.id.nswVideoDetails);
         VideoTitle = findViewById(R.id.VideoTitle);
-        VideoDateUploaded = findViewById(R.id.VideoDateUploaded);
-        VideoChannelName = findViewById(R.id.VideoChannelName);
+        VideoDateUploaded = findViewById(R.id.dateUploaded);
         VideoNoComments = findViewById(R.id.VideoNoComments);
-        civVideoChannelProfilePic = findViewById(R.id.civVideoChannelProfilePic);
         civVideoCommentProfilePic = findViewById(R.id.civVideoCommentProfilePic);
         VideoDesc = findViewById(R.id.VideoDesc);
         flVideoComment1 = findViewById(R.id.flVideoComment1);
         flVideoComments = findViewById(R.id.flVideoComments);
         VideoCategoryName = findViewById(R.id.VideoCategoryName);
-        VideoViews = findViewById(R.id.VideoViews);
-        cvVideoChannel = findViewById(R.id.cvVideoChannel);
+
 
         vvVideo = findViewById(R.id.vvVideo);
         pbVideo = findViewById(R.id.pbVideo);
         sbVideo = findViewById(R.id.sbVideo);
         VideoDuration = findViewById(R.id.VideoDuration);
-        VideoCurrentVIdeoTIme = findViewById(R.id.VideoCurrentVIdeoTIme);
+        VideoCurrentVIdeoTIme = findViewById(R.id.videoCurrentTime);
         ibVideoPlayPause = findViewById(R.id.ibVideoPlayPause);
         flVideoBottomPanel = findViewById(R.id.flVideoBottomPanel);
         ibVideoFullScreen = findViewById(R.id.ibVideoFullScreen);
         videoFL = findViewById(R.id.videoFL);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference("");
+        mDatabase1=FirebaseDatabase.getInstance().getReference("RegisteredUsers");
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         mStorage = FirebaseStorage.getInstance();
         storageReference = mStorage.getReferenceFromUrl("gs://edusoft-1b8b7.appspot.com");
 
+        Collections.sort(videoCommentsList, new Comparator<VideoComments>() {
+            @Override
+            public int compare(VideoComments o1, VideoComments o2) {
+                long time=o1.getTimestamp();
+                long time2=o2.getTimestamp();
+            if (time2>time){
+                return 1;
+            }else if (time>time2){return -1;}
+            else return  0;
+            }
+        });
         rvVideoComments = findViewById(R.id.rvVideoComments);
         videoCommentsAdapter = new VideoCommentsAdapter(mContext, videoCommentsList);
-        linearLayoutManager = new LinearLayoutManager(mContext);
+        linearLayoutManager = new LinearLayoutManager(mContext,LinearLayoutManager.VERTICAL,false);
         rvVideoComments.setAdapter(videoCommentsAdapter);
         rvVideoComments.setLayoutManager(linearLayoutManager);
+
 
         MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
         builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, vvVideo.getDuration());
@@ -252,45 +244,53 @@ public class VideoActivity extends AppCompatActivity {
         flVideoComments.setVisibility(View.GONE);
 
 
-
-
-        setVideo();
-        setViewForVideo();
-        setVideoBufferUpdate();
-        setVideOtherDetails();
-        setVideoWatchTime();
-        getVideoDetails();
-        checkVideoHasCommentOrNot();
-        getComments();
-        setViews();
-
-
-
-        cvVideoChannel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent channelIntent = new Intent(mContext, ChannelActivity.class);
-                channelIntent.putExtra("channel_id", video_user_id);
-                startActivity(channelIntent);
-            }
-        });
+        if (currentUser!=null) {
+            user_id = currentUser.getUid();
+            setVideo();
+            setVideoBufferUpdate();
+            setVideOtherDetails();
+            getVideoDetails();
+            checkVideoHasCommentOrNot();
+            getComments();
+            getUserImage();
+        }
 
         ibVideoPlayPause.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
-            if (vvVideo.isPlaying()) {
-                ibVideoPlayPause.setImageResource(R.drawable.ic_play_arrow_black_24dp);
-                vvVideo.pause();
-                stopPosition = vvVideo.getCurrentPosition();
-                isVideoPlaying = false;
-            } else {
-                ibVideoPlayPause.setImageResource(R.drawable.ic_pause_black_24dp);
-                vvVideo.start();
-                vvVideo.seekTo(stopPosition);
-                isVideoPlaying = true;
-            }
+                if (vvVideo.isPlaying()) {
+                    ibVideoPlayPause.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+                    vvVideo.pause();
+                    stopPosition = vvVideo.getCurrentPosition();
+                    isVideoPlaying = false;
+                } else {
+                    ibVideoPlayPause.setImageResource(R.drawable.ic_pause_black_24dp);
+                    vvVideo.start();
+                    vvVideo.seekTo(stopPosition);
+                    isVideoPlaying = true;
+                }
             }
         });
+
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                final DatabaseReference ref=FirebaseDatabase.getInstance().getReference("videos").child(videoId).child("Ratings").child("MyRatings").child(user_id).child("ratings");
+                double intRating=rating;
+                ref.setValue(intRating);
+                String ratingbar=String.valueOf(ratingBar.getRating());
+                Toast.makeText(getApplicationContext(), "You rated this video as:"+ratingbar, Toast.LENGTH_LONG).show();
+            }
+        });
+        vvVideo.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                Toast.makeText(mContext, "Playback completed", Toast.LENGTH_SHORT).show();
+                vvVideo.seekTo(1);
+            }
+        });
+
 
         ibVideoFullScreen.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -303,10 +303,7 @@ public class VideoActivity extends AppCompatActivity {
                     videoFullScreenIntent.putExtra("isVideoPlaying", isVideoPlaying);
                     videoFullScreenIntent.putExtra("video_duration", video_duration);
                     startActivityForResult(videoFullScreenIntent, 1);
-
-
                 }
-
             }
         });
 
@@ -316,62 +313,78 @@ public class VideoActivity extends AppCompatActivity {
                 openCommentDialog();
             }
         });
-
-
-
-
-
-
-
+      submitRatings();
     }
 
-
-    private void setVideoWatchTime() {
-        String watch_time_id = mDatabase.child("videos").child(videoId).child("watch_time").push().getKey();
-        HashMap<String, Object> mVideosWatchTimeDataMap = new HashMap<>();
-        mVideosWatchTimeDataMap.put("video_id", videoId);
-        mVideosWatchTimeDataMap.put("user_id", user_id);
-        mVideosWatchTimeDataMap.put("video_stop_position", vvVideo.getCurrentPosition());
-        mVideosWatchTimeDataMap.put("video_duration", vvVideo.getDuration());
-        mVideosWatchTimeDataMap.put("timestamp", System.currentTimeMillis());
-
-
-
-    }
-    void setMediaPlayer(){
-        mediaPlayer.stop();
-    }
-
-    private void setViews() {
-        mDatabase.child("videos").child(videoId).child("views").addValueEventListener(new ValueEventListener() {
+    private void getUserImage() {
+        DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(currentUser.getUid());
+        ref.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                int view_count = (int) dataSnapshot.getChildrenCount();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                RegisteredUsers users=snapshot.getValue(RegisteredUsers.class);
+                assert users!=null;
+                if (users.getProfile_image().equals(""))
+                    Glide.with(mContext).load(R.drawable.default_profile_pic).into(civVideoCommentProfilePic);
+                else {
+                    Glide.with(mContext).load(users.getProfile_image()).into(civVideoCommentProfilePic);
 
-                if (view_count == 1) {
-                    VideoViews.setText(view_count + " view");
-                } else {
-                    VideoViews.setText(view_count + " views");
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
     }
 
-    private void setViewForVideo() {
-        if (vvVideo.isPlaying()) {
-            String view_id = mDatabase.child("videos").child(videoId).child("views").push().getKey();
-            HashMap<String, Object> mVideoViewDataMap = new HashMap<>();
-            mVideoViewDataMap.put("video_id", videoId);
-            mVideoViewDataMap.put("user_id", user_id);
-            mVideoViewDataMap.put("timestamp", System.currentTimeMillis());
-            mVideoViewDataMap.put("view_id", view_id);
-            mDatabase.child("videos").child(videoId).child("views").child(view_id).updateChildren(mVideoViewDataMap);
+    public void submitRatings(){
+        try {
+            final DatabaseReference db=FirebaseDatabase.getInstance().getReference();
+            final DatabaseReference dbRef=db.child("videos").child(videoId).child("Ratings").child("MyRatings");
+            dbRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    double total=0.0;
+                    double count=0.0;
+                    double average=0.0;
+                    for (DataSnapshot ds:snapshot.getChildren()){
+                        String userrate=ds.child("ratings").getValue().toString();
+                        double rating= Double.parseDouble(userrate);
+                        total=total+rating;
+                        count=count+1;
+                        average=total/count;
+
+                    }
+                    final DatabaseReference newRef=db.child("videos").child(videoId).child("Ratings").child("AverageRatings");
+                    newRef.child("current").setValue(average);
+                    mDatabase.child("videos").child(videoId).child("Ratings").child("AverageRatings").addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            String currentRate=snapshot.child("current").getValue().toString();
+                            ratings.setText("Average Video Rating is:"+currentRate);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    throw error.toException();
+
+                }
+            });
+        }catch(Exception e){
+            Toast.makeText(VideoActivity.this,""+e,Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void setMediaPlayer(){
+        mediaPlayer.stop();
     }
 
     private void openCommentDialog() {
@@ -383,6 +396,9 @@ public class VideoActivity extends AppCompatActivity {
 
         CardView cvVideoCommentCancel = commentDialog.findViewById(R.id.cvVideoCommentCancel);
         CardView cvVideoComment = commentDialog.findViewById(R.id.cvVideoComment);
+        final TextView personName=commentDialog.findViewById(R.id.personName);
+        final CircleImageView commentpic=commentDialog.findViewById(R.id.commentpic);
+
         final EditText etVideoComment = commentDialog.findViewById(R.id.etVideoComment);
 
         cvVideoCommentCancel.setOnClickListener(new View.OnClickListener() {
@@ -395,34 +411,60 @@ public class VideoActivity extends AppCompatActivity {
         cvVideoComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String comment = etVideoComment.getText().toString();
+                DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(currentUser.getUid());
+                ref.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        RegisteredUsers users=snapshot.getValue(RegisteredUsers.class);
+                        assert users!=null;
+                        String name=snapshot.child("name").getValue().toString();
+                        String photo=snapshot.child("profile_image").getValue().toString();
+                        personName.setText(users.getName());
+                        if (users.getProfile_image().equals(""))
+                            Glide.with(mContext).load(R.drawable.default_profile_pic).into(commentpic);
+                        else {
+                            Glide.with(mContext).load(users.getProfile_image()).into(commentpic);
 
-                if (comment.isEmpty()) {
-                    etVideoComment.setError("Cannot post empty comment");
-                } else {
-                    String comment_id = mDatabase.child("videos").child(videoId).child("comment").push().getKey();
-                    HashMap<String, Object> mCommentDataMap = new HashMap<>();
-                    mCommentDataMap.put("comment", comment);
-                    mCommentDataMap.put("comment_id", comment_id);
-                    mCommentDataMap.put("timestamp", System.currentTimeMillis());
-                    mCommentDataMap.put("user_id", user_id);
-                    mCommentDataMap.put("video_id", videoId);
-                    mDatabase.child("videos").child(videoId).child("comments").child(comment_id).setValue(mCommentDataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                commentDialog.dismiss();
-                            }
                         }
-                    });
-                }
+                        String comment = etVideoComment.getText().toString();
+
+                        if (comment.isEmpty()) {
+                            etVideoComment.setError("Cannot post empty comment");
+                        } else {
+                            String comment_id = mDatabase.child("videos").child(videoId).child("comment").push().getKey();
+                            HashMap<String, Object> mCommentDataMap = new HashMap<>();
+                            mCommentDataMap.put("comment", comment);
+                            mCommentDataMap.put("comment_id", comment_id);
+                            mCommentDataMap.put("timestamp", System.currentTimeMillis());
+                            mCommentDataMap.put("user_id", video_user_id);
+                            mCommentDataMap.put("video_id", videoId);
+                            mCommentDataMap.put("name", name);
+                            mCommentDataMap.put("photo", photo);
+                            mDatabase.child("videos").child(videoId).child("comments").child(comment_id).setValue(mCommentDataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        commentDialog.dismiss();
+                                    }
+                                }
+                            });
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
             }
         });
     }
 
     private void setVideOtherDetails() {
         long millis = video_duration;
-        String videoDurationFormat = String.format("%2d:%02d", TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), // The change is in this line
+        String videoDurationFormat = String.format("%02d:%02d:%02d",TimeUnit.MILLISECONDS.toHours(millis), TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), // The change is in this line
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
         VideoDuration.setText(videoDurationFormat);
@@ -498,7 +540,6 @@ public class VideoActivity extends AppCompatActivity {
     private void setVideo() {
         if (isVideoPlaying) {
             vvVideo.setVideoPath(String.valueOf(video));
-            //sets video to particular position in milliseconds
             vvVideo.seekTo(stopPosition);
             vvVideo.start();
             mHandler = new Handler();
@@ -507,72 +548,9 @@ public class VideoActivity extends AppCompatActivity {
             vvVideo.setVideoPath(String.valueOf(video));
             vvVideo.seekTo(stopPosition);
             vvVideo.pause();
-            ibVideoPlayPause.setImageResource(R.drawable.ic_pause_black_24dp);
+            ibVideoPlayPause.setImageResource(R.drawable.ic_play_arrow_black_24dp);
             mHandler = new Handler();
             updateProgressBar();
-        }
-    }
-
-    public void showNotification(Context context, String title, String messageBody, Bitmap videoThumbnailBitmap) {
-
-        //Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        //Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_app_notification_icon);
-
-        String channel_id = createNotificationChannel(context);
-
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, channel_id)
-                .setContentTitle(title)
-                .setContentText(messageBody)
-                /*.setLargeIcon(largeIcon)*/
-                .setSmallIcon(R.drawable.ic_launcher_foreground) //needs white icon with transparent BG (For all platforms)
-                // Add media control buttons that invoke intents in your media service
-                .addAction(R.drawable.ic_thumb_down_black_24dp, "Dislike", dislikePendingIntent) // #0
-                .addAction(R.drawable.ic_replay_10_black_24dp, "Replay 10s", replay10sPendingIntent) // #1
-                .addAction(R.drawable.ic_pause_black_24dp, "Pause", pausePendingIntent) // #2
-                .addAction(R.drawable.ic_forward_10_black_24dp, "Forward 10s", forward10sPendingIntent)  // #3
-                .addAction(R.drawable.ic_thumb_up_black_24dp, "Like", likePendingIntent)     // #4
-                // Apply the media style template
-                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(2 /* #1: pause button */)
-                        .setMediaSession(mediaSessionCompat.getSessionToken()))
-                .setLargeIcon(videoThumbnailBitmap);
-
-        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify((int) ((new Date(System.currentTimeMillis()).getTime() / 1000L) % Integer.MAX_VALUE) /* ID of notification */, notificationBuilder.build());
-    }
-
-    public static String createNotificationChannel(Context context) {
-
-        // NotificationChannels are required for Notifications on O (API 26) and above.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-            // The id of the channel.
-            String channelId = "Channel_id";
-
-            // The user-visible name of the channel.
-            CharSequence channelName = "Application_name";
-            // The user-visible description of the channel.
-            String channelDescription = "Application_name Alert";
-            int channelImportance = NotificationManager.IMPORTANCE_DEFAULT;
-            boolean channelEnableVibrate = true;
-//            int channelLockscreenVisibility = Notification.;
-
-            // Initializes NotificationChannel.
-            NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, channelImportance);
-            notificationChannel.setDescription(channelDescription);
-            notificationChannel.enableVibration(channelEnableVibrate);
-//            notificationChannel.setLockscreenVisibility(channelLockscreenVisibility);
-
-            // Adds NotificationChannel to system. Attempting to create an existing notification
-
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            assert notificationManager != null;
-            notificationManager.createNotificationChannel(notificationChannel);
-
-            return channelId;
-        } else {
-            // Returns null for pre-O (26) devices.
-            return null;
         }
     }
 
@@ -601,29 +579,19 @@ public class VideoActivity extends AppCompatActivity {
                 if (dataSnapshot.exists()) {
                     VideoComments videoComments = dataSnapshot.getValue(VideoComments.class);
                     videoCommentsList.add(videoComments);
+                    Collections.reverse(videoCommentsList);
                     videoCommentsAdapter.notifyDataSetChanged();
                 }
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) { }
             @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) { }
             @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) { }
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
     }
 
@@ -633,59 +601,36 @@ public class VideoActivity extends AppCompatActivity {
             @SuppressLint("ResourceType")
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                video_title = dataSnapshot.child("videoTitle").getValue(String.class);
-                video_desc = dataSnapshot.child("videoDescription").getValue(String.class);
-                video_thumbnail = dataSnapshot.child("videoThumbnail").getValue(String.class);
-                video_uploaded_date = (long) dataSnapshot.child("timestamp").getValue();
-                video_user_id = dataSnapshot.child("user_id").getValue(String.class);
-                video_width = (Math.toIntExact(Long.valueOf(String.valueOf(dataSnapshot.child("videoWidth").getValue()))));
-                video_height = (Math.toIntExact(Long.valueOf(String.valueOf(dataSnapshot.child("videoHeight").getValue()))));
-                video_category_name = dataSnapshot.child("videoCategory").getValue(String.class);
-                video_duration = (long) dataSnapshot.child("videoDuration").getValue();
+                SubscriptionFeeds subscriptionFeeds=dataSnapshot.getValue(SubscriptionFeeds.class);
 
-
-                Glide.with(getApplicationContext()).load(video_thumbnail).apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3))).into(ivVideoBG);
-                VideoTitle.setText(video_title);
-                VideoCategoryName.setText(video_category_name);
-
-                if (video_desc.equals("")) {
-                    VideoDesc.setText("No video description");
-                    VideoDesc.setTypeface(null, Typeface.ITALIC);
+                VideoTitle.setText(subscriptionFeeds.getVideoTitle());
+                Spanned sp = Html.fromHtml(subscriptionFeeds.getVideoDescription());
+                if (subscriptionFeeds.getVideoDescription().equals("")) {
+                    VideoDesc.setVisibility(View.GONE);
                 } else {
-                    VideoDesc.setText(video_desc);
+                    VideoDesc.setText(sp);
                 }
+
+                long millis = subscriptionFeeds.getVideoDuration();
+                String videoDurationFormat = String.format("%02d:%02d:%02d",TimeUnit.MILLISECONDS.toHours(millis), TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), // The change is in this line
+                        TimeUnit.MILLISECONDS.toSeconds(millis) -
+                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+                VideoDuration.setText(videoDurationFormat);
 
                 Calendar calendar = Calendar.getInstance();
                 TimeZone tz = TimeZone.getDefault();
                 calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
                 SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
-                VideoDateUploaded.setText(sdf.format(video_uploaded_date));
-
-
-                try {
-                    URL url = new URL(video_thumbnail);
-                    videoThumbnailBitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                } catch (IOException e) {
-                    System.out.println(e);
-                }
-
-                mDatabase.child("users").child(video_user_id).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        channel_name = dataSnapshot.child("name").getValue().toString();
-                        profile_pic = dataSnapshot.child("profile_image").getValue().toString();
-
-                        VideoChannelName.setText(channel_name);
-                        Glide.with(getApplicationContext()).load(profile_pic).into(civVideoChannelProfilePic);
-                        Glide.with(getApplicationContext()).load(profile_pic).into(civVideoCommentProfilePic);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-
+                VideoDateUploaded.setText(sdf.format(subscriptionFeeds.getTimestamp()));
+                video_title = dataSnapshot.child("videoTitle").getValue(String.class);
+                video_desc = dataSnapshot.child("videoDescription").getValue(String.class);
+                video_thumbnail = dataSnapshot.child("videoThumbnail").getValue(String.class);
+                video_uploaded_date = (long) Objects.requireNonNull(dataSnapshot).child("timestamp").getValue();
+                video_user_id = dataSnapshot.child("user_id").getValue(String.class);
+                video_category_name = dataSnapshot.child("videoCategory").getValue(String.class);
+                Glide.with(getApplicationContext()).load(video_thumbnail).apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3))).into(ivVideoBG);
+                VideoTitle.setText(video_title);
+                VideoCategoryName.setText(video_category_name);
             }
 
             @Override
@@ -714,13 +659,13 @@ public class VideoActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             openRepliesFragment = intent.getBooleanExtra("openReplies", false);
             comment_id = intent.getStringExtra("comment_id");
-            video_id = intent.getStringExtra("video_id");
+            videoId = intent.getStringExtra("video_id");
 //            Toast.makeText(mContext, String.valueOf(openRepliesFragment), Toast.LENGTH_SHORT).show();
 
             if (openRepliesFragment == true) {
                 Intent openRepliesIntent = new Intent("showReplies");
                 openRepliesIntent.putExtra("comment_id", comment_id);
-                openRepliesIntent.putExtra("video_id", video_id);
+                openRepliesIntent.putExtra("video_id", videoId);
                 openRepliesIntent.putExtra("openReplies", true);
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(openRepliesIntent);
                 flVideoComments.setVisibility(View.VISIBLE);
@@ -763,16 +708,27 @@ public class VideoActivity extends AppCompatActivity {
         ms/=1000;
         return (String.format("%2d:%02d",((ms%3600)/60), ((ms%3600)%60)));
     }
-
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putInt(PLAYBACK_TIME,vvVideo.getCurrentPosition());
+    }
     @Override
     protected void onResume() {
         super.onResume();
-
+        vvVideo.resume();
     }
-
     @Override
     protected void onStop() {
         super.onStop();
-    }
 
+        stopPosition = vvVideo.getCurrentPosition();
+        vvVideo.pause();
+    }
+    protected void onPause(){
+        super.onPause();
+        if (Build.VERSION.SDK_INT<Build.VERSION_CODES.O){
+            vvVideo.pause();
+        }
+    }
 }

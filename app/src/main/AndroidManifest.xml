@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:dist="http://schemas.android.com/apk/distribution"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.sharon.edusoft">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
-
 
     <dist:module dist:instant="true" />
 
@@ -15,41 +15,59 @@
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".ForgotPasswordActivity"/>
+        android:theme="@style/AppTheme"
+        tools:replace="android:icon,android:theme">
+        <meta-data
+            android:name="android.app.default_searchable"
+            android:value=".Search.SearchActivity" />
+        <activity android:name=".SetbookMpesa.setbookMpesa"></activity>
+        <activity android:name=".SetbookPdf.ViewPdf" />
+        <activity android:name=".AdminPanel.UploadPdf" />
+        <activity android:name=".SetbookPdf.SetbookPdf" />
+        <activity android:name=".StudDashboard" />
+        <activity
+            android:name=".AdminPanel.AdminHome"
+            tools:ignore="InnerclassSeparator" />
+        <activity
+            android:name=".DarajaMpesa.MpesaActivity"
+            tools:ignore="InnerclassSeparator" />
+        <activity android:name=".Library" />
+        <activity android:name=".ForgotPasswordActivity" />
         <activity
             android:name=".Video.VideoFullscreenActivity"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            tools:ignore="InnerclassSeparator" />
         <activity android:name=".EditVideoActivity" />
-        <activity android:name=".Channel.CreateChannelActivity" />
-        <activity android:name=".Search.SearchActivity" />
-        <activity android:name=".MyVideos.MyVideosActivity" />
         <activity
-            android:name=".CreateAccountPopupActivity"
-            android:theme="@style/Theme.Transparent" />
+            android:name=".Search.SearchActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
+        </activity>
+        <activity
+            android:name=".MyVideos.MyVideosActivity"
+            tools:ignore="InnerclassSeparator" />
         <activity
             android:name=".Video.VideoActivity"
-            android:resizeableActivity="true" />
-        <activity android:name=".CreateAccountActivity" />
+            android:configChanges="orientation|screenSize|layoutDirection"
+            android:resizeableActivity="true"
+            tools:ignore="InnerclassSeparator" />
         <activity android:name=".Home.Categories.CategoriesActivity" />
-        <activity android:name=".Channel.EditChannelActivity" />
         <activity android:name=".Settings.SettingsChangeProfilePicActivity" />
-        <activity android:name=".Channel.ChannelActivity" />
         <activity android:name=".Settings.SettingsActivity" />
         <activity android:name=".AddVideo.VideoUploadActivity" />
         <activity android:name=".AddVideo.AddInfoVideoActivity" />
         <activity android:name=".AddVideo.ChooseVideoActivity" />
-        <activity android:name=".SetupAccount.SetupAccountUsernameActivity" />
         <activity android:name=".SetupAccount.SetupAccountImageActivity" />
-        <activity android:name=".SetupAccount.SetupAccountNameActivity" />
-        <activity android:name=".StartActivity"/>
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".MainActivity">
-
-
+        <activity android:name=".StartActivity" />
+        <activity android:name=".MainActivity"/>
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -61,7 +79,15 @@
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
 
-        <receiver android:name="com.sharon.edusoft.Video.NotificationVideoReceiver" />
+        <receiver android:name=".Video.NotificationVideoReceiver" />
+
+        <service
+            android:name=".DarajaMpesa.FirebaseMessagingService"
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

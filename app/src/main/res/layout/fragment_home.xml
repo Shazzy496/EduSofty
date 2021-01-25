@@ -15,14 +15,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/hometoolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorWhite"
-                android:minHeight="?attr/actionBarSize"
-                android:theme="?attr/actionBarTheme" />
-
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/homeVP"
                 android:layout_width="match_parent"

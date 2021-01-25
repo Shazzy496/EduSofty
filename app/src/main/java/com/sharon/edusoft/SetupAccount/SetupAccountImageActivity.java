@@ -11,10 +11,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.sharon.edusoft.Profile.ProfileFragment;
 import com.sharon.edusoft.R;
 import com.sharon.edusoft.StartActivity;
 import com.google.android.gms.tasks.Continuation;
@@ -35,6 +35,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
 import com.karumi.dexter.listener.single.PermissionListener;
+import com.sharon.edusoft.StudDashboard;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -50,8 +51,9 @@ import id.zelory.compressor.Compressor;
 public class SetupAccountImageActivity extends AppCompatActivity {
 
     private CircleImageView setupImageCIV;
-    private Button setupImageNextbutton, setupImageSkipbutton;
+    private EditText etSetupNameBio, etSetupName, etSetupUsername;;
     private ImageView imageButton2;
+    private Button setupUsernamebutton;
 
     private DatabaseReference mDatabase;
     private FirebaseUser currentUser;
@@ -59,6 +61,7 @@ public class SetupAccountImageActivity extends AppCompatActivity {
     private FirebaseStorage mStorage;
     private StorageReference storageReference;
 
+    private String name, bio,username;
     private String user_id;
     private Uri profileImageUri;
     private Bitmap mCompressedProfileImage;
@@ -70,24 +73,29 @@ public class SetupAccountImageActivity extends AppCompatActivity {
 
         setupImageCIV = findViewById(R.id.setupImageCIV);
         imageButton2=findViewById(R.id.imageButton2);
-        setupImageNextbutton = findViewById(R.id.setupImageNextbutton);
-        setupImageSkipbutton = findViewById(R.id.setupImageSkipbutton);
+        etSetupNameBio = findViewById(R.id.etSetupNameBio);
+        etSetupName = findViewById(R.id.etSetupName);
+        etSetupUsername = findViewById(R.id.etSetupUsername);
+        setupUsernamebutton = findViewById(R.id.setupUsernamebutton);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
+        user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mStorage = FirebaseStorage.getInstance();
         storageReference = mStorage.getReferenceFromUrl("gs://edusoft-1b8b7.appspot.com");
 
+//        if (mAuth.getCurrentUser()!=null){
+//
+//        }
         if (currentUser == null) {
             sendToStart();
-        } else {
-            user_id = currentUser.getUid();
         }
         imageButton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               onBackPressed();
+                onBackPressed();
+                finish();
             }
         });
 
@@ -130,28 +138,29 @@ public class SetupAccountImageActivity extends AppCompatActivity {
             }
         });
 
-        setupImageNextbutton.setOnClickListener(new View.OnClickListener() {
+        setupUsernamebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setUpImage();
             }
         });
 
-        setupImageSkipbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDatabase.child("users").child(user_id).child("profile_image").setValue("");
-                Intent setupUsernameIntent = new Intent(SetupAccountImageActivity.this, SetupAccountUsernameActivity.class);
-                startActivity(setupUsernameIntent);
-                finish();
-            }
-        });
     }
 
     private void setUpImage() {
+        name = etSetupName.getText().toString();
+        bio = etSetupNameBio.getText().toString();
+        username = etSetupUsername.getText().toString();
         if (profileImageUri == null) {
             Toast.makeText(getApplicationContext(), "Please select an image", Toast.LENGTH_LONG).show();
-        } else {
+        } else if (name.isEmpty()){
+            etSetupName.setError("Please enter your name");
+        }else if (bio.isEmpty()){
+            etSetupNameBio.setError("Please write your bio");
+        }else if (username.isEmpty()){
+            etSetupName.setError("Please enter your name");
+        }
+        else {
             final Dialog dialog = new Dialog(SetupAccountImageActivity.this);
             dialog.setContentView(R.layout.loading_dialog_layout);
             dialog.setCancelable(false);
@@ -193,13 +202,21 @@ public class SetupAccountImageActivity extends AppCompatActivity {
                                 Uri downloadUri = task.getResult();
 
                                 HashMap<String, Object> mDataMap = new HashMap<>();
+                                mDataMap.put("user_id",user_id);
                                 mDataMap.put("profile_image", downloadUri.toString());
+                                mDataMap.put("name", name);
+                                mDataMap.put("bio", bio);
+                                mDataMap.put("username", username);
 
-                                mDatabase.child("users").child(user_id).updateChildren(mDataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+
+
+
+                                mDatabase.child("RegisteredUsers").child(user_id).updateChildren(mDataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
-                                            Intent setupUsernameIntent = new Intent(SetupAccountImageActivity.this, SetupAccountNameActivity.class);
+                                            Intent setupUsernameIntent = new Intent(SetupAccountImageActivity.this, StudDashboard.class);
+                                            setupUsernameIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                             startActivity(setupUsernameIntent);
                                             finish();
                                             dialog.cancel();

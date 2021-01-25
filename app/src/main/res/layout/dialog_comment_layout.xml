@@ -42,20 +42,53 @@
                         android:textColor="@color/colorBlack"
                         android:textSize="17sp"
                         android:textStyle="bold" />
-
-                    <EditText
-                        android:id="@+id/etVideoComment"
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="16dp"
+                        android:layout_height="match_parent">
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/commentpic"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
-                        android:layout_marginRight="16dp"
-                        android:background="@color/colorWhite"
-                        android:ems="10"
-                        android:gravity="start|top"
-                        android:hint="Write a comment..."
-                        android:inputType="textLongMessage|textMultiLine|textCapSentences"
-                        android:minLines="4" />
+                        android:visibility="gone"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                    <TextView
+                        android:id="@+id/personName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="Person name"
+                        android:visibility="gone"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/commentpic"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                        <EditText
+                            android:id="@+id/etVideoComment"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginRight="16dp"
+                            android:background="@color/colorWhite"
+                            android:ems="10"
+                            android:hint="Write a comment..."
+                            android:inputType="textLongMessage|textMultiLine|textCapSentences"
+                            android:minLines="4"
+                            android:textColor="@color/colorBlack"
+                            android:textSize="16sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/commentpic" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <LinearLayout
                         android:layout_width="wrap_content"

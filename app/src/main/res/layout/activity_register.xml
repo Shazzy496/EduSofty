@@ -150,8 +150,8 @@
                 android:ems="10"
                 android:hint="Name"
                 android:inputType="text"
-                android:textColor="@color/colorWhite"
-                android:textColorHint="@color/colorHalfWhiteTransparent" />
+                android:textColor="@color/colorWhite"/>
+
             <ProgressBar
                 android:id="@+id/loginPB"
                 style="?android:attr/progressBarStyle"

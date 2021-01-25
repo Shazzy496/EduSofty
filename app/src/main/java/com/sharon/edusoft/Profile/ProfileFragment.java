@@ -13,8 +13,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +21,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.sharon.edusoft.Channel.ChannelActivity;
-import com.sharon.edusoft.Channel.CreateChannelActivity;
-import com.sharon.edusoft.LoginActivity;
+import com.sharon.edusoft.Library;
+import com.sharon.edusoft.LoginActivity;;
 import com.sharon.edusoft.R;
 import com.sharon.edusoft.RegisterActivity;
 import com.sharon.edusoft.Settings.SettingsActivity;
@@ -39,8 +36,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sharon.edusoft.Settings.SettingsChangeProfilePicActivity;
+import com.sharon.edusoft.SetupAccount.RegisteredUsers;
 import com.sharon.edusoft.SetupAccount.SetupAccountImageActivity;
-import com.squareup.picasso.Picasso;
+import com.sharon.edusoft.Video.registration;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -53,17 +51,18 @@ public class ProfileFragment extends Fragment {
     private Toolbar profiletoolbar;
 
     private CircleImageView civChannelProfilePic;
-    private TextView PersonName, Email;
+    private TextView personName, bio;
 
     private NestedScrollView nswProfile;
     private FrameLayout flProfileContentHeader;
-    private CardView cvProfileSettings, cvCreateNewChannel,cvMyChannel,history,likedvideos,changeProfile;
+    private CardView cvProfileSettings,cvMyChannel,likedvideos,changeProfile;
 
     private DatabaseReference mDatabase;
-    private FirebaseUser currentUser;
+    FirebaseUser currentUser;
     private FirebaseAuth mAuth;
     private FirebaseStorage mStorage;
     private StorageReference storageReference;
+    private FirebaseUser mFireBaseUser;
 
     private String user_id,userType;
 
@@ -97,15 +96,13 @@ public class ProfileFragment extends Fragment {
         likedvideos = view.findViewById(R.id.likedvideos);
 
         civChannelProfilePic = view.findViewById(R.id.civChannelProfilePic);
-        PersonName = view.findViewById(R.id.PersonName);
-        Email = view.findViewById(R.id.Email);
-        cvCreateNewChannel = view.findViewById(R.id.cvCreateNewChannel);
+        personName = view.findViewById(R.id.profileName);
+        bio = view.findViewById(R.id.etSetupNameBio);
         cvProfileSettings = view.findViewById(R.id.cvProfileSettings);
 
 
-        mDatabase = FirebaseDatabase.getInstance().getReference("users");
-        mAuth = FirebaseAuth.getInstance();
-        currentUser = mAuth.getCurrentUser();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        mDatabase = FirebaseDatabase.getInstance().getReference("registration").child(currentUser.getUid());
         mStorage = FirebaseStorage.getInstance();
         storageReference = mStorage.getReferenceFromUrl("gs://edusoft-1b8b7.appspot.com");
 
@@ -137,18 +134,14 @@ public class ProfileFragment extends Fragment {
                 }
             });
 
-        } else {
+        }
+        else {
             user_id = currentUser.getUid();
             getUserDetails();
+            setProfilePic();
         }
 
-        cvCreateNewChannel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent createChannelIntent = new Intent(getActivity(), CreateChannelActivity.class);
-                startActivity(createChannelIntent);
-            }
-        });
+
 
         cvProfileSettings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,45 +158,57 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-      cvMyChannel.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-              Intent intent=new Intent(getActivity(), SetupAccountImageActivity.class);
-              startActivity(intent);
-          }
-      });
+        cvMyChannel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(getActivity(), SetupAccountImageActivity.class);
+                startActivity(intent);
+            }
+        });
+        likedvideos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(getActivity(), Library.class);
+                startActivity(intent);
+            }
+        });
+
+
 
     }
+
+
+    private void setProfilePic() {
+        DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(currentUser.getUid());
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                RegisteredUsers users=snapshot.getValue(RegisteredUsers.class);
+                assert users!=null;
+                if (users.getProfile_image().equals(""))
+                    Glide.with(getActivity()).load(R.drawable.default_profile_pic).into(civChannelProfilePic);
+                else {
+                    Glide.with(getActivity()).load(users.getProfile_image()).into(civChannelProfilePic);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
     private void getUserDetails() {
-        mDatabase.child("users").child(user_id).addValueEventListener(new ValueEventListener() {
+        mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    if (dataSnapshot.hasChild("users")) {
-                        String myChannel = dataSnapshot.child("users").getValue().toString();
-                        Picasso.get().load(myChannel).placeholder(R.drawable.default_profile_pic).into(civChannelProfilePic);
+                registration reg =dataSnapshot.getValue(registration.class);
+                personName.setText(reg.getName());
+                bio.setText(reg.getEmail());
+                assert reg!=null;
 
-                    }
-                    String name = dataSnapshot.child("users").child("name").getValue(String.class);
-                    String email = dataSnapshot.child("users").child("email").getValue(String.class);
-                    String userType=dataSnapshot.child("users").child("login").getValue(String.class);
-
-                    if (dataSnapshot.child("profile_image").getValue().toString().equals("")) {
-                        Glide.with(getActivity()).load(R.drawable.default_profile_pic).into(civChannelProfilePic);
-                    } else {
-                        String profile_image = dataSnapshot.child("profile_image").getValue().toString();
-                        Glide.with(getActivity()).load(profile_image).into(civChannelProfilePic);
-                    }if (userType.equals("Producer")){
-                        nswProfile.setVisibility(View.VISIBLE);
-
-                    }else{
-                        nswProfile.setVisibility(View.INVISIBLE);
-                    }
-
-
-                    PersonName.setText(name);
-                    Email.setText(email);
-                }
 
             }
             @Override
@@ -213,12 +218,12 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.profile_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-
-    }
+//    @Override
+//    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+//        inflater.inflate(R.menu.profile_menu, menu);
+//        super.onCreateOptionsMenu(menu, inflater);
+//
+//    }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

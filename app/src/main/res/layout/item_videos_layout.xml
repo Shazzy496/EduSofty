@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:id="@+id/subcriptionLayout"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
@@ -20,40 +21,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cvVideosTop"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="0dp"
-                app:cardElevation="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_margin="8dp"
-                    android:orientation="horizontal">
-
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/civVideoProfilePic"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp" />
-
-                    <TextView
-                        android:id="@+id/tvVideoPersonName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="Person Name"
-                        android:textColor="@color/colorBlack"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -80,7 +47,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvVideosVideoDuration"
+                        android:id="@+id/VideosVideoDuration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom|right"
@@ -95,7 +62,7 @@
                         android:textColor="@color/colorWhite" />
 
                     <ProgressBar
-                        android:id="@+id/pbVideoStopPosition"
+                        android:id="@+id/VideoStopPosition"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -121,7 +88,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvVideoTitle"
+                        android:id="@+id/VideoTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -136,7 +103,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/tvVideoDesc"
+                        android:id="@+id/VideoDesc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -155,7 +122,7 @@
                         android:orientation="horizontal">
 
                         <TextView
-                            android:id="@+id/tvVideoUploadDate"
+                            android:id="@+id/VideoUploadDate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="8dp"
@@ -176,16 +143,7 @@
                             android:tint="@color/colorBlack"
                             app:srcCompat="@drawable/ic_circle_1_black_24dp" />
 
-                        <TextView
-                            android:id="@+id/tvVideoViews"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="4dp"
-                            android:layout_marginRight="8dp"
-                            android:layout_marginBottom="4dp"
-                            android:layout_weight="1"
-                            android:text="Views"
-                            android:textColor="@color/colorBlack" />
+
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

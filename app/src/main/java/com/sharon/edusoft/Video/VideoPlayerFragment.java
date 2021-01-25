@@ -80,11 +80,6 @@ public class VideoPlayerFragment extends Fragment {
 
         mContext = getActivity();
 
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-
         if (getArguments() != null) {
             videoId = getArguments().getString("video_id");
             video = getArguments().getString("video");
@@ -400,6 +395,8 @@ public class VideoPlayerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        stopPosition=vvVideo.getCurrentPosition();
+        vvVideo.start();
 
     }
 }

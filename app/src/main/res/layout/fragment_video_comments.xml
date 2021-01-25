@@ -146,7 +146,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/VideoCommenting"
+                        android:id="@+id/videoCommenting"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         android:layout_marginStart="8dp"
@@ -172,11 +172,11 @@
                 android:layout_marginBottom="4dp"
                 android:background="@color/colorVeryLightGray"
                 android:backgroundTint="@color/colorVeryLightGray" />
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvVideoCommentReplies"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </FrameLayout>

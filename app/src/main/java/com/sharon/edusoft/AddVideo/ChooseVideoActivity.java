@@ -111,20 +111,6 @@ public class ChooseVideoActivity extends AppCompatActivity {
         currentUser = mAuth.getCurrentUser();
         mStorage = FirebaseStorage.getInstance();
         storageReference = mStorage.getReferenceFromUrl("gs://edusoft-1b8b7.appspot.com");
-
-        /*
-        if (currentUser == null) {
-            sendToStart();
-        } else {
-            user_id = currentUser.getUid();
-        }
-
-         */
-
-        user_id = currentUser.getUid();
-
-        getPartialUserDetails();
-//Dexter simply for requesting permission at run time.
         ivChooseVideo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,12 +211,12 @@ public class ChooseVideoActivity extends AppCompatActivity {
 
     }
 
-    private void getPartialUserDetails() {
-        mDatabase.child("users").child(user_id).addValueEventListener(new ValueEventListener() {
+   /* private void getPartialUserDetails() {
+        mDatabase.child("RegisteredUsers").child(user_id).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    name = dataSnapshot.child("name").getValue().toString();
+                    name = dataSnapshot.child("Name").getValue().toString();
                 }
             }
 
@@ -239,7 +225,7 @@ public class ChooseVideoActivity extends AppCompatActivity {
 
             }
         });
-    }
+    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -251,7 +237,7 @@ public class ChooseVideoActivity extends AppCompatActivity {
                 vvChooseVideo.setVideoURI(videoUri);
                 vvChooseVideo.start();
 
-                String filePath = getRealPathFromURI_API19(ChooseVideoActivity.this, videoUri);
+                //String filePath = getRealPathFromURI_API19(ChooseVideoActivity.this, videoUri);
 
                 cvChooseVideo.setVisibility(View.GONE);
                 flChooseVideo.setVisibility(View.VISIBLE);
@@ -259,13 +245,15 @@ public class ChooseVideoActivity extends AppCompatActivity {
                 choosevideonextbutton.setVisibility(View.VISIBLE);
 
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-                retriever.setDataSource(filePath);
-                width = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-                height = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-                duration = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-                retriever.release();
+                    retriever.setDataSource(ChooseVideoActivity.this, videoUri);
+                    width = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+                    height = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+                    duration = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+                    retriever.release();
 
-                bitmapVideoThumbnail = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Video.Thumbnails.MINI_KIND);
+
+
+                bitmapVideoThumbnail = ThumbnailUtils.createVideoThumbnail(getRealPathFromURI_API19(ChooseVideoActivity.this, videoUri),MediaStore.Video.Thumbnails.MINI_KIND);
                 videoThumbnailUri = getImageUri(ChooseVideoActivity.this, bitmapVideoThumbnail);
 
                 Toast.makeText(getApplicationContext(), String.valueOf(bitmapVideoThumbnail), Toast.LENGTH_SHORT).show();

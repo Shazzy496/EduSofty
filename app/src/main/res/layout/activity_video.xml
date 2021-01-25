@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -30,16 +31,15 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/item_video" />
+                app:srcCompat="@drawable/fav" />
 
             <VideoView
                 android:id="@+id/vvVideo"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_margin="8dp"
-                app:layout_constraintDimensionRatio="4:3"
+                android:layout_width="wrap_content"
+                android:layout_height="240dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintDimensionRatio="4:3"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -75,7 +75,7 @@
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
                         android:background="@null"
-                        android:src="@drawable/ic_play_arrow_black_24dp"
+                        android:src="@drawable/ic_pause_black_24dp"
                         android:tint="@color/colorWhite"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -91,11 +91,11 @@
                         android:layout_marginBottom="8dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/VideoDuration"
-                        app:layout_constraintStart_toEndOf="@+id/VideoCurrentVIdeoTIme"
+                        app:layout_constraintStart_toEndOf="@+id/videoCurrentTime"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/VideoCurrentVIdeoTIme"
+                        android:id="@+id/videoCurrentTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -116,7 +116,7 @@
                         android:text="0:00"
                         android:textColor="@color/colorWhite"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/imageButton3"
+                        app:layout_constraintEnd_toStartOf="@+id/ibVideoFullScreen"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.538" />
 
@@ -134,19 +134,6 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageButton
-                        android:id="@+id/imageButton3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:background="@null"
-                        android:src="@drawable/ic_settings_black_24dp"
-                        android:tint="@color/colorWhite"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/ibVideoFullScreen"
-                        app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </FrameLayout>
@@ -162,7 +149,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/videoFL">
+        app:layout_constraintTop_toBottomOf="@+id/videoFL"
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -176,15 +164,15 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginRight="12dp"
                 android:layout_marginBottom="4dp"
-
                 app:cardCornerRadius="0dp"
                 app:cardElevation="0dp">
-
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
-
                     <TextView
                         android:id="@+id/VideoTitle"
                         android:layout_width="match_parent"
@@ -194,38 +182,58 @@
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
+                    <TextView
+                        android:id="@+id/dateUploaded"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Date Uploaded" />
+
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
-
                         <TextView
-                            android:id="@+id/VideoDateUploaded"
+                            android:id="@+id/feedback"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Date Uploaded" />
-
-                        <ImageView
-                            android:id="@+id/imageView13"
-                            android:layout_width="6dp"
-                            android:layout_height="6dp"
-                            android:layout_gravity="center"
-                            android:layout_marginLeft="4dp"
-                            android:layout_marginTop="2dp"
-                            android:layout_marginRight="4dp"
-                            android:layout_weight="1"
-                            app:srcCompat="@drawable/ic_circle_1_black_24dp" />
-
-                        <TextView
-                            android:id="@+id/VideoViews"
+                            android:text="Rate Video"
+                            android:layout_marginTop="14dp"/>
+                        <RatingBar
+                            android:id="@+id/ratingBar"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="8dp"
-                            android:layout_weight="1"
-                            android:text="0 views" />
+                            android:isIndicator="false"
+                            android:numStars="5"
+                            android:progressBackgroundTint="@color/colorGray"
+                            android:rating="0"
+                            android:stepSize="1"
+                            android:layout_marginLeft="15dp"
+                            app:layout_constraintHorizontal_bias="0.496"
+                            app:layout_constraintVertical_bias="0.634" />
+
+
+
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="402dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/ratings"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/ratingBar"
+                            android:layout_marginTop="8dp"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                            android:textColor="@color/colorBlack"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
                     </LinearLayout>
                 </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
 
@@ -238,59 +246,6 @@
                 android:background="@color/colorVeryLightGray"
                 android:backgroundTint="@color/colorVeryLightGray" />
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cvVideoChannel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:foreground="?attr/selectableItemBackground"
-                app:cardCornerRadius="0dp"
-                app:cardElevation="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="12dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginRight="12dp"
-                    android:layout_marginBottom="4dp"
-                    android:orientation="horizontal">
-
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/civVideoChannelProfilePic"
-                        android:layout_width="38dp"
-                        android:layout_height="38dp"
-                        android:layout_gravity="center" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/VideoChannelName"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Channel Name"
-                            android:textColor="@color/colorBlack"
-                            android:textSize="16sp" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <View
-                android:id="@+id/view2"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
-                android:background="@color/colorVeryLightGray"
-                android:backgroundTint="@color/colorVeryLightGray" />
 
 
             <FrameLayout

@@ -75,13 +75,13 @@ public class AddInfoVideoActivity extends AppCompatActivity implements AdapterVi
         addinfovideouploadbutton = findViewById(R.id.addinfovideouploadbutton);
         videoAddInfoSpinner = findViewById(R.id.videoAddInfoSpinner);
 
+
+
         videoAddInfoSpinner.setOnItemSelectedListener(this);
 
         List<String> categoriesList = new ArrayList<>();
         categoriesList.add("Select Category");
         categoriesList.add("Drama");
-        categoriesList.add("Comedy");
-        categoriesList.add("Music");
         categoriesList.add("English Setbook Plays");
         categoriesList.add("Kiswahili Setbook Plays");
         categoriesList.add("Other Setbook Plays");

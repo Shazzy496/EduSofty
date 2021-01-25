@@ -1,6 +1,8 @@
 package com.sharon.edusoft.Video;
 
 public class Constants {
+    public static final String STORAGE_PATH_UPLOADS = "uploads/";
+    public static final String DATABASE_PATH_UPLOADS = "uploads";
     public interface ACTION {
         public static String MAIN_ACTION = "com.sharon.edusoft.action.main";
         public static String INIT_ACTION = "com.sharon.edusoft.action.init";

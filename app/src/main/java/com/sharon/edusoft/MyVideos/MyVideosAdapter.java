@@ -120,7 +120,7 @@ public class MyVideosAdapter extends RecyclerView.Adapter<MyVideosAdapter.ViewHo
         calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy h:mm a", Locale.getDefault());
         java.util.Date currenTimeZone=new java.util.Date((long)1379487711*1000);
-        //Toast.makeText(TimeStampChkActivity.this, sdf.format(currenTimeZone), Toast.LENGTH_SHORT).show();
+
 
 
         Glide.with(mContext).load(myVideos.getVideoThumbnail()).into(holder.ivMyVideosVideoThumbnail);

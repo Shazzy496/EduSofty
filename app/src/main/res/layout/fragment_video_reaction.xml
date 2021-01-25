@@ -47,7 +47,7 @@
                         app:srcCompat="@drawable/ic_thumb_up_black_24dp" />
 
                     <TextView
-                        android:id="@+id/tvVideoLike"
+                        android:id="@+id/VideoLike"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -93,7 +93,7 @@
                         app:srcCompat="@drawable/ic_thumb_down_black_24dp" />
 
                     <TextView
-                        android:id="@+id/tvVideoDislike"
+                        android:id="@+id/VideoDislike"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
