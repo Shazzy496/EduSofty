@@ -2,13 +2,20 @@ package com.sharon.edusoft.Video.VideoComments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,7 +46,7 @@ public class VideoCommentsAdapter extends RecyclerView.Adapter<VideoCommentsAdap
 
     private Context mContext;
     private List<VideoComments> videoCommentsList;
-
+    public boolean openRepliesFragment = false;
 
     private DatabaseReference mDatabase;
     private DatabaseReference mDatabase1;
@@ -74,65 +81,34 @@ public class VideoCommentsAdapter extends RecyclerView.Adapter<VideoCommentsAdap
         mStorage = FirebaseStorage.getInstance();
         storageReference = mStorage.getReferenceFromUrl("gs://edusoft-1b8b7.appspot.com");
 
-        setCommentUserDetails( holder, videoComments);
         setComments( holder, videoComments);
-
-
-
 
         (holder).cvVideoComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent openRepliesIntent = new Intent("openRepliesFragment");
-                openRepliesIntent.putExtra("openReplies", true);
-                openRepliesIntent.putExtra("user_id",videoComments.getUser_id());
-                openRepliesIntent.putExtra("comment_id", videoComments.getComment_id());
-                openRepliesIntent.putExtra("video_id", videoComments.getVideo_id());
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(openRepliesIntent);
+
+//                  SharedPreferences preferences=PreferenceManager.getDefaultSharedPreferences(mContext);
+//                  SharedPreferences.Editor editor=preferences.edit();
+//                  editor.putString("user_id", videoComments.getUser_id());
+//                    editor.putString("comment_id", videoComments.getComment_id());
+//                   editor.putString("video_id", videoComments.getVideo_id());
+//                    editor.apply();
+                    AppCompatActivity appCompatActivity = (AppCompatActivity) v.getContext();
+                    VideoCommentsFragment fragment = new VideoCommentsFragment();
+                    Bundle openRepliesIntent = new Bundle();
+                    openRepliesIntent.putString("user_id", videoComments.getUser_id());
+                    openRepliesIntent.putString("comment_id", videoComments.getComment_id());
+                    openRepliesIntent.putString("video_id", videoComments.getVideo_id());
+                    fragment.setArguments(openRepliesIntent);
+                    appCompatActivity.getSupportFragmentManager()
+                            .beginTransaction().add(R.id.flVideoComments, fragment)
+                            .addToBackStack(null).commit();
+
+
             }
         });
 
-    }
 
-    private void setCommentUserDetails(final ViewHolder holder, VideoComments videoComments) {
-        mDatabase.child("videos").child(videoComments.getVideo_id()).child("comments").child("comment_id").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    final  String commenting_person=snapshot.child("user_id").getKey();
-
-                    mDatabase1.orderByChild("id").equalTo(commenting_person).addListenerForSingleValueEvent (new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                                RegisteredUsers users = dataSnapshot.getValue(RegisteredUsers.class);
-                                String name = dataSnapshot.child("name").getValue().toString();
-                                holder.CommentPersonName.setText(name);
-                                assert users != null;
-                                if (users.getProfile_image().equals("")) {
-                                    Glide.with(mContext).load(R.drawable.default_profile_pic).into(holder.civCommentProfilePic);
-                                } else {
-                                    Glide.with(mContext).load(users.getProfile_image()).into(holder.civCommentProfilePic);
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-
-
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
 
     private void setComments(ViewHolder holder, VideoComments videoComments) {
@@ -143,7 +119,6 @@ public class VideoCommentsAdapter extends RecyclerView.Adapter<VideoCommentsAdap
         TimeZone tz = TimeZone.getDefault();
         calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy h:mm a", Locale.getDefault());
-        java.util.Date currenTimeZone=new java.util.Date((long)1379487711*1000);
         holder.time.setText(sdf.format(videoComments.getTimestamp()));
     }
 
@@ -157,7 +132,6 @@ public class VideoCommentsAdapter extends RecyclerView.Adapter<VideoCommentsAdap
         private CircleImageView civCommentProfilePic;
         private TextView CommentPersonName, Comment, CommentReply,time;
         private CardView cvVideoComment;
-        private  String vdeoId;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -168,7 +142,7 @@ public class VideoCommentsAdapter extends RecyclerView.Adapter<VideoCommentsAdap
             CommentReply = itemView.findViewById(R.id.commentReply);
             cvVideoComment = itemView.findViewById(R.id.cvVideoComment);
             time=itemView.findViewById(R.id.time);
-            vdeoId=null;
+
 
         }
     }

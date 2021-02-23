@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 
 import com.sharon.edusoft.R;
@@ -52,9 +54,11 @@ public class CategoriesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_categories);
 
         mContext = CategoriesActivity.this;
+        SharedPreferences preference= PreferenceManager.getDefaultSharedPreferences(mContext);
+        category_name=preference.getString("category_name","");
 
-        Intent getIntent = getIntent();
-        category_name = getIntent.getStringExtra("category_name");
+//        Intent getIntent = getIntent();
+//        category_name = getIntent.getStringExtra("category_name");
 
         categoriestoolbar = findViewById(R.id.categoriestoolbar);
         categoriestoolbar.setTitle(category_name);
@@ -80,7 +84,6 @@ public class CategoriesActivity extends AppCompatActivity {
         linearLayoutManager = new LinearLayoutManager(mContext);
         rvCategoriesVideo.setAdapter(videosAdapter);
         rvCategoriesVideo.setLayoutManager(linearLayoutManager);
-        linearLayoutManager.setStackFromEnd(true);
         linearLayoutManager.setReverseLayout(true);
 
 

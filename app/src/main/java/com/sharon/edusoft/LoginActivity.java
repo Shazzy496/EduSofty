@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -84,7 +85,6 @@ public class LoginActivity extends AppCompatActivity {
 
 
         if (currentUser != null) {
-            sendToMain();
             SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
             prefs.edit().putBoolean("Islogin",Islogin).commit();
         }
@@ -95,13 +95,6 @@ public class LoginActivity extends AppCompatActivity {
                 loginUser();
             }
         });
-       fpass.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-               Intent i=new Intent(LoginActivity.this,ForgotPasswordActivity.class);
-               startActivity(i);
-           }
-       });
        reg.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View v) {
@@ -137,32 +130,14 @@ public class LoginActivity extends AppCompatActivity {
                         if (etLoginEmail.getText().toString().equals("admin@gmail.com")&&etLoginPassword.getText().toString().equals("admin1234")){
                             Intent loginAdmin=new Intent(LoginActivity.this, AdminHome.class);
                             startActivity(loginAdmin);
-                        } else {
-                            String login_id = mDatabase.child("users").child(task.getResult().getUser().getUid()).push().getKey();
-                            String user_id = task.getResult().getUser().getUid();
-                            try {
-                                PackageInfo pInfo = LoginActivity.this.getPackageManager().getPackageInfo(getPackageName(), 0);
-
-                            } catch (PackageManager.NameNotFoundException e) {
-                                e.printStackTrace();
-                            }
-
-
-                            HashMap<String, Object> mLoginInfoDataMap = new HashMap<>();
-                            mLoginInfoDataMap.put("login_id", login_id);
-                            mLoginInfoDataMap.put("user_id", user_id);
-                            mLoginInfoDataMap.put("timestamp", System.currentTimeMillis());
-
-
-                            mDatabase.child("users").child(user_id).child("login").child(login_id).updateChildren(mLoginInfoDataMap);
-                            sendToMain();
-                            loginPB.setVisibility(View.GONE);
                         }
-
                     } else {
                         loginPB.setVisibility(View.GONE);
                         loginbutton.setVisibility(View.VISIBLE);
                         Toast.makeText(getApplicationContext(), "Error: " + task.getException(), Toast.LENGTH_LONG).show();
+                    }
+                    if (task.isSuccessful()) {
+                        onBackPressed();
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -176,13 +151,4 @@ public class LoginActivity extends AppCompatActivity {
         }
 
     }
-
-
-    private void sendToMain() {
-
-        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(mainIntent);
-        finish();
-    }
-
 }

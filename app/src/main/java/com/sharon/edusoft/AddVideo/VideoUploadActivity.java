@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.sharon.edusoft.AdminPanel.AdminHome;
 import com.sharon.edusoft.LoginActivity;
 import com.sharon.edusoft.MyVideos.MyVideosActivity;
 import com.sharon.edusoft.R;
@@ -36,7 +37,7 @@ import java.util.HashMap;
 
 public class VideoUploadActivity extends AppCompatActivity {
 
-    private TextView UploadVideoMessage,pause,cancel;
+    private TextView UploadVideoMessage;
     private ProgressBar pbVideoUpload;
 
     private DatabaseReference mDatabase;
@@ -75,8 +76,6 @@ public class VideoUploadActivity extends AppCompatActivity {
         videoDuration = bundle.getLong("videoDuration");
 
         UploadVideoMessage = findViewById(R.id.uploadVideoMessage);
-        pause=findViewById(R.id.pause);
-        cancel=findViewById(R.id.cancel);
         pbVideoUpload = findViewById(R.id.pbVideoUpload);
 
         pbVideoUpload.setIndeterminate(false);
@@ -193,7 +192,7 @@ public class VideoUploadActivity extends AppCompatActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
-                                            Intent myUploadsIntent = new Intent(VideoUploadActivity.this, MyVideosActivity.class);;
+                                            Intent myUploadsIntent = new Intent(VideoUploadActivity.this, AdminHome.class);
                                             startActivity(myUploadsIntent);
                                             finish();
                                         }
@@ -217,7 +216,7 @@ public class VideoUploadActivity extends AppCompatActivity {
                     pbVideoUpload.setIndeterminate(false);
                     int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
                     pbVideoUpload.setProgress(progress);
-                    UploadVideoMessage.setText("Uploading Video... " + String.valueOf(progress) + "%");
+                    UploadVideoMessage.setText("Uploading Video... " + progress + "%");
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -234,7 +233,7 @@ public class VideoUploadActivity extends AppCompatActivity {
 
 
     private void sendToLogin() {
-        Intent loginIntent = new Intent(VideoUploadActivity.this, LoginActivity.class);;
+        Intent loginIntent = new Intent(VideoUploadActivity.this, LoginActivity.class);
         startActivity(loginIntent);
         finish();
     }

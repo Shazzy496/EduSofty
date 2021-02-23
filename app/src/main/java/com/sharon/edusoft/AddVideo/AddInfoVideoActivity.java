@@ -68,7 +68,7 @@ public class AddInfoVideoActivity extends AppCompatActivity implements AdapterVi
             }
         });
 
-        ivAddInfoVideoThumbnail = findViewById(R.id.ivAddInfoVideoThumbnail);;
+        ivAddInfoVideoThumbnail = findViewById(R.id.ivAddInfoVideoThumbnail);
         addinfovideoreplacethumbbutton = findViewById(R.id.addinfovideoreplacethumbbutton);
         etAddInfoVideoTitle = findViewById(R.id.etAddInfoVideoTitle);
         etAddInfoVideoDesc = findViewById(R.id.etAddInfoVideoDesc);
@@ -108,8 +108,12 @@ public class AddInfoVideoActivity extends AppCompatActivity implements AdapterVi
 
                 videoTitle = etAddInfoVideoTitle.getText().toString();
                 videoDesc = etAddInfoVideoDesc.getText().toString();
-
-                if (videoUri == null) {
+                 if (videoTitle.isEmpty()){
+                     etAddInfoVideoTitle.setError("Video Title is required");
+                 }else if (videoDesc.isEmpty()){
+                     etAddInfoVideoDesc.setError("Video description is required");
+                 }
+               else if (videoUri == null) {
                     Toast.makeText(getApplicationContext(), "Video missing", Toast.LENGTH_SHORT).show();
                 } else if (categoryItem.equals("Select Category")) {
                     Toast.makeText(getApplicationContext(), "Please select a video category", Toast.LENGTH_LONG).show();

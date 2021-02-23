@@ -8,16 +8,14 @@ import androidx.cardview.widget.CardView;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -26,6 +24,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.Html;
@@ -46,12 +45,10 @@ import android.widget.VideoView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.sharon.edusoft.Home.SubscriptionFeeds.SubscriptionFeeds;
-import com.sharon.edusoft.Home.SubscriptionFeeds.SubscriptionFeedsAdapter;
 import com.sharon.edusoft.R;
 import com.sharon.edusoft.SetupAccount.RegisteredUsers;
 import com.sharon.edusoft.Video.VideoComments.VideoComments;
 import com.sharon.edusoft.Video.VideoComments.VideoCommentsAdapter;
-import com.sharon.edusoft.Video.VideoComments.VideoCommentsFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -70,7 +67,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -84,25 +80,21 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class VideoActivity extends AppCompatActivity {
 
-    private static final String CHANNEL_ID = "1";
     private static Bitmap videoThumbnailBitmap;
     private Context mContext;
 
     private FrameLayout flVideoComment1, flVideoComments, videoFL;
 
     private ImageView ivVideoBG;
-    private TextView VideoTitle, VideoDateUploaded, VideoChannelName, VideoNoComments, VideoDesc, VideoCategoryName,VideoCommentPersonName;
-    private CircleImageView civVideoChannelProfilePic, civVideoCommentProfilePic, civVideoCommentProfilePic2;
-    private CardView cvVideoChannel;
-    private NestedScrollView nswVideoDetails;
-
+    private TextView VideoTitle, VideoDateUploaded,VideoNoComments, VideoDesc, VideoCategoryName,VideoCommentPersonName;
+    private CircleImageView  civVideoCommentProfilePic;
     private RatingBar ratingBar;
     private TextView ratings;
     private VideoView vvVideo;
     private ProgressBar pbVideo;
     private SeekBar sbVideo;
     private TextView VideoDuration, VideoCurrentVIdeoTIme;
-    private ImageButton ibVideoPlayPause, ibVideoFullScreen,settings;
+    private ImageButton ibVideoPlayPause;
     private FrameLayout flVideoBottomPanel;
     private NestedScrollView nestedScrollView;
 
@@ -118,16 +110,15 @@ public class VideoActivity extends AppCompatActivity {
     private VideoCommentsAdapter videoCommentsAdapter;
     private LinearLayoutManager linearLayoutManager;
 
-    private String profile_pic,channel_name, user_id,channel_id;
+    private String profile_pic,user_id;
     String videoUri;
     private Uri video;
-    private String video_thumbnail,video_user_id,video_category_name,comment_id,videoId,video_desc,video_title,producer,rate_id;
+    private String video_thumbnail,video_user_id,video_category_name,videoId,video_title,video_desc;
     private long video_uploaded_date,video_duration;
     private int stopPosition;
-    public boolean openRepliesFragment = false, isVideoPlaying = true;
+    public boolean isVideoPlaying = true;
     public int videoProgess,video_width,video_height,mCurrentPosition=0;
     public  static final String PLAYBACK_TIME="play-time";
-    private SubscriptionFeedsAdapter subscriptionFeedsAdapter;
     MediaPlayer mediaPlayer;
     Handler mHandler;
     private Runnable mRunnable;
@@ -142,10 +133,7 @@ public class VideoActivity extends AppCompatActivity {
     private FragmentManager fragmentManager = getSupportFragmentManager();
     private FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
     private FragmentTransaction fragmentTransactionVideoComments = fragmentManager.beginTransaction();
-    private VideoPlayerFragment videoPlayerFragment;
     private VideoReactionFragment videoReactionFragment;
-    private VideoCommentsFragment videoCommentsFragment;
-
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,44 +141,41 @@ public class VideoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_video);
         mContext = VideoActivity.this;
 
-
         Bundle bundle = getIntent().getExtras();
-        videoId =bundle.get("video_id").toString();
-        video_user_id=bundle.get("video_user_id").toString();
-        video_duration = bundle.getLong("video_duration");
-        video = Uri.parse(bundle.get("video").toString());
-
-
+        if(bundle!=null) {
+            videoId = bundle.getString("video_id");
+            video_user_id = bundle.getString("video_user_id");
+            video_duration = bundle.getLong("videoDuration");
+            video = Uri.parse(bundle.getString("video"));
+            video_desc=bundle.getString("videoDescription");
+            video_title=bundle.getString("videoTitle");
+            video_thumbnail=bundle.getString("videoThumbnail");
+            video_uploaded_date=bundle.getLong("timestamp");
+        }
         if (savedInstanceState!=null){
             mCurrentPosition=savedInstanceState.getInt(PLAYBACK_TIME);
         }
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(openRepliesFragmentBroadcastReceiver,
-                new IntentFilter("openRepliesFragment"));
         Bundle setVideoPLayerBundle = new Bundle();
         setVideoPLayerBundle.putString("video_id", String.valueOf(videoId));
-        setVideoPLayerBundle.putString("video_duration", String.valueOf(video_duration));
+        setVideoPLayerBundle.putString("videoDuration", String.valueOf(video_duration));
         setVideoPLayerBundle.putString("video", String.valueOf(video));
-        setVideoPLayerBundle.putString("stopPosition", String.valueOf(stopPosition));
         setVideoPLayerBundle.putString("video_user_id", String.valueOf(video_user_id));
+        setVideoPLayerBundle.putString("videoDescription",video_desc);
+        setVideoPLayerBundle.putString("videoTitle",video_title);
+        setVideoPLayerBundle.putString("videoThumbnail",video_thumbnail);
+        setVideoPLayerBundle.putString("timestamp", String.valueOf(video_uploaded_date));
 
-        videoPlayerFragment = new VideoPlayerFragment();
+
         videoReactionFragment = new VideoReactionFragment();
-        videoCommentsFragment = new VideoCommentsFragment();
-
         videoReactionFragment.setArguments(setVideoPLayerBundle);
         fragmentTransaction.add(R.id.flVideoReaction, videoReactionFragment, "HELLO-REACTION");
-
-        videoCommentsFragment.setArguments(setVideoPLayerBundle);
-        fragmentTransaction.add(R.id.flVideoComments, videoCommentsFragment, "HELLO-COMMENTS");
-
         fragmentTransaction.commit();
+
         VideoCommentPersonName=findViewById(R.id.VideoCommentPersonName);
         rate=findViewById(R.id.feedback);
         ratingBar=findViewById(R.id.ratingBar);
         ratings=findViewById(R.id.ratings);
         ivVideoBG = findViewById(R.id.ivVideoBG);
-        nswVideoDetails = findViewById(R.id.nswVideoDetails);
         VideoTitle = findViewById(R.id.VideoTitle);
         VideoDateUploaded = findViewById(R.id.dateUploaded);
         VideoNoComments = findViewById(R.id.VideoNoComments);
@@ -208,7 +193,6 @@ public class VideoActivity extends AppCompatActivity {
         VideoCurrentVIdeoTIme = findViewById(R.id.videoCurrentTime);
         ibVideoPlayPause = findViewById(R.id.ibVideoPlayPause);
         flVideoBottomPanel = findViewById(R.id.flVideoBottomPanel);
-        ibVideoFullScreen = findViewById(R.id.ibVideoFullScreen);
         videoFL = findViewById(R.id.videoFL);
 
         mDatabase = FirebaseDatabase.getInstance().getReference("");
@@ -217,18 +201,6 @@ public class VideoActivity extends AppCompatActivity {
         currentUser = mAuth.getCurrentUser();
         mStorage = FirebaseStorage.getInstance();
         storageReference = mStorage.getReferenceFromUrl("gs://edusoft-1b8b7.appspot.com");
-
-        Collections.sort(videoCommentsList, new Comparator<VideoComments>() {
-            @Override
-            public int compare(VideoComments o1, VideoComments o2) {
-                long time=o1.getTimestamp();
-                long time2=o2.getTimestamp();
-            if (time2>time){
-                return 1;
-            }else if (time>time2){return -1;}
-            else return  0;
-            }
-        });
         rvVideoComments = findViewById(R.id.rvVideoComments);
         videoCommentsAdapter = new VideoCommentsAdapter(mContext, videoCommentsList);
         linearLayoutManager = new LinearLayoutManager(mContext,LinearLayoutManager.VERTICAL,false);
@@ -241,7 +213,7 @@ public class VideoActivity extends AppCompatActivity {
         mediaSessionCompat = new MediaSessionCompat(mContext, "tag");
         mediaSessionCompat.setMetadata(builder.build());
 
-        flVideoComments.setVisibility(View.GONE);
+//        flVideoComments.setVisibility(View.GONE);
 
 
         if (currentUser!=null) {
@@ -254,7 +226,6 @@ public class VideoActivity extends AppCompatActivity {
             getComments();
             getUserImage();
         }
-
         ibVideoPlayPause.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -292,21 +263,6 @@ public class VideoActivity extends AppCompatActivity {
         });
 
 
-        ibVideoFullScreen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (videoId != null) {
-                    Intent videoFullScreenIntent = new Intent(getApplicationContext(), VideoFullscreenActivity.class);
-                    videoFullScreenIntent.putExtra("video_id", videoId);
-                    videoFullScreenIntent.putExtra("video", video);
-                    videoFullScreenIntent.putExtra("stopPosition", vvVideo.getCurrentPosition());
-                    videoFullScreenIntent.putExtra("isVideoPlaying", isVideoPlaying);
-                    videoFullScreenIntent.putExtra("video_duration", video_duration);
-                    startActivityForResult(videoFullScreenIntent, 1);
-                }
-            }
-        });
-
         flVideoComment1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -317,18 +273,17 @@ public class VideoActivity extends AppCompatActivity {
     }
 
     private void getUserImage() {
-        DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(currentUser.getUid());
+        DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(user_id);
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
                 RegisteredUsers users=snapshot.getValue(RegisteredUsers.class);
-                assert users!=null;
-                if (users.getProfile_image().equals(""))
-                    Glide.with(mContext).load(R.drawable.default_profile_pic).into(civVideoCommentProfilePic);
-                else {
-                    Glide.with(mContext).load(users.getProfile_image()).into(civVideoCommentProfilePic);
+                if (users!=null){
+                String profpic=users.getProfile_image();
+                        Glide.with(mContext).load(profpic).into(civVideoCommentProfilePic);
 
-                }
+                }}
             }
 
             @Override
@@ -411,14 +366,14 @@ public class VideoActivity extends AppCompatActivity {
         cvVideoComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(currentUser.getUid());
+                DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(user_id);
                 ref.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         RegisteredUsers users=snapshot.getValue(RegisteredUsers.class);
                         assert users!=null;
-                        String name=snapshot.child("name").getValue().toString();
-                        String photo=snapshot.child("profile_image").getValue().toString();
+                        String name=users.getName();
+                        String photo=users.getProfile_image();
                         personName.setText(users.getName());
                         if (users.getProfile_image().equals(""))
                             Glide.with(mContext).load(R.drawable.default_profile_pic).into(commentpic);
@@ -437,9 +392,11 @@ public class VideoActivity extends AppCompatActivity {
                             mCommentDataMap.put("comment_id", comment_id);
                             mCommentDataMap.put("timestamp", System.currentTimeMillis());
                             mCommentDataMap.put("user_id", video_user_id);
+                            mCommentDataMap.put("comment_userId",user_id);
                             mCommentDataMap.put("video_id", videoId);
                             mCommentDataMap.put("name", name);
                             mCommentDataMap.put("photo", photo);
+                            mDatabase.child("userComments").child(user_id).child(videoId).setValue(mCommentDataMap);
                             mDatabase.child("videos").child(videoId).child("comments").child(comment_id).setValue(mCommentDataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
@@ -653,27 +610,6 @@ public class VideoActivity extends AppCompatActivity {
 
         }
     }
-
-    public BroadcastReceiver openRepliesFragmentBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            openRepliesFragment = intent.getBooleanExtra("openReplies", false);
-            comment_id = intent.getStringExtra("comment_id");
-            videoId = intent.getStringExtra("video_id");
-//            Toast.makeText(mContext, String.valueOf(openRepliesFragment), Toast.LENGTH_SHORT).show();
-
-            if (openRepliesFragment == true) {
-                Intent openRepliesIntent = new Intent("showReplies");
-                openRepliesIntent.putExtra("comment_id", comment_id);
-                openRepliesIntent.putExtra("video_id", videoId);
-                openRepliesIntent.putExtra("openReplies", true);
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(openRepliesIntent);
-                flVideoComments.setVisibility(View.VISIBLE);
-            } else {
-                flVideoComments.setVisibility(View.GONE);
-            }
-        }
-    };
 
     private void updateProgressBar() {
         mHandler.postDelayed(updateTimeTask, 100);

@@ -104,26 +104,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-    private void checkUserHasProfilePicOrNot() {
-        mDatabase.child("users").child(user_id).child("profile_image").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.exists()) {
-                    Intent userProfilePicIntent = new Intent(MainActivity.this, SetupAccountImageActivity.class);
-                    startActivity(userProfilePicIntent);
-                    finish();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-
     private void loadFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.mainFrameLayout, fragment);

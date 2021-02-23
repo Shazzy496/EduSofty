@@ -211,21 +211,6 @@ public class ChooseVideoActivity extends AppCompatActivity {
 
     }
 
-   /* private void getPartialUserDetails() {
-        mDatabase.child("RegisteredUsers").child(user_id).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    name = dataSnapshot.child("Name").getValue().toString();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -10,7 +10,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.FirebaseOptions;
 import com.sharon.edusoft.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -71,7 +74,11 @@ public class MyVideosActivity extends AppCompatActivity {
         storageReference = mStorage.getReferenceFromUrl("gs://edusoft-1b8b7.appspot.com");
 
         rvMyVideos = findViewById(R.id.rvMyVideos);
-        myVideosAdapter = new MyVideosAdapter(mContext, myVideosList);
+        FirebaseRecyclerOptions<MyVideos> options =
+                new FirebaseRecyclerOptions.Builder<MyVideos>()
+                        .setQuery(FirebaseDatabase.getInstance().getReference().child("videos"), MyVideos.class)
+                        .build();
+        myVideosAdapter = new MyVideosAdapter(options,this);
         linearLayoutManager = new LinearLayoutManager(mContext);
         rvMyVideos.setAdapter(myVideosAdapter);
         rvMyVideos.setLayoutManager(linearLayoutManager);
@@ -122,5 +129,15 @@ public class MyVideosActivity extends AppCompatActivity {
 
             }
         });
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        myVideosAdapter.startListening();
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        myVideosAdapter.stopListening();
     }
 }

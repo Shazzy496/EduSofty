@@ -15,6 +15,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+import com.sharon.edusoft.OTP_Receiver.OtpVerification;
 import com.sharon.edusoft.R;
 import com.sharon.edusoft.StartActivity;
 import com.google.android.gms.tasks.Continuation;
@@ -51,7 +56,7 @@ import id.zelory.compressor.Compressor;
 public class SetupAccountImageActivity extends AppCompatActivity {
 
     private CircleImageView setupImageCIV;
-    private EditText etSetupNameBio, etSetupName, etSetupUsername;;
+    private EditText etSetupNameBio, etSetupName, etSetupUsername,email;
     private ImageView imageButton2;
     private Button setupUsernamebutton;
 
@@ -61,7 +66,7 @@ public class SetupAccountImageActivity extends AppCompatActivity {
     private FirebaseStorage mStorage;
     private StorageReference storageReference;
 
-    private String name, bio,username;
+    private String name, bio,username,Email;
     private String user_id;
     private Uri profileImageUri;
     private Bitmap mCompressedProfileImage;
@@ -76,6 +81,7 @@ public class SetupAccountImageActivity extends AppCompatActivity {
         etSetupNameBio = findViewById(R.id.etSetupNameBio);
         etSetupName = findViewById(R.id.etSetupName);
         etSetupUsername = findViewById(R.id.etSetupUsername);
+        email=findViewById(R.id.email);
         setupUsernamebutton = findViewById(R.id.setupUsernamebutton);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -85,9 +91,6 @@ public class SetupAccountImageActivity extends AppCompatActivity {
         mStorage = FirebaseStorage.getInstance();
         storageReference = mStorage.getReferenceFromUrl("gs://edusoft-1b8b7.appspot.com");
 
-//        if (mAuth.getCurrentUser()!=null){
-//
-//        }
         if (currentUser == null) {
             sendToStart();
         }
@@ -99,6 +102,7 @@ public class SetupAccountImageActivity extends AppCompatActivity {
             }
         });
 
+        checkIfUserExists();
         setupImageCIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -147,10 +151,30 @@ public class SetupAccountImageActivity extends AppCompatActivity {
 
     }
 
+    private void checkIfUserExists() {
+        DatabaseReference reference=FirebaseDatabase.getInstance().getReference().child("RegisteredUsers");
+        reference.orderByChild("user_id").equalTo(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    Intent intent=new Intent(SetupAccountImageActivity.this,StudDashboard.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
     private void setUpImage() {
         name = etSetupName.getText().toString();
         bio = etSetupNameBio.getText().toString();
         username = etSetupUsername.getText().toString();
+        Email=email.getText().toString();
         if (profileImageUri == null) {
             Toast.makeText(getApplicationContext(), "Please select an image", Toast.LENGTH_LONG).show();
         } else if (name.isEmpty()){
@@ -159,6 +183,8 @@ public class SetupAccountImageActivity extends AppCompatActivity {
             etSetupNameBio.setError("Please write your bio");
         }else if (username.isEmpty()){
             etSetupName.setError("Please enter your name");
+        }else if (Email.isEmpty()){
+            email.setError("Email Address is required");
         }
         else {
             final Dialog dialog = new Dialog(SetupAccountImageActivity.this);
@@ -207,8 +233,7 @@ public class SetupAccountImageActivity extends AppCompatActivity {
                                 mDataMap.put("name", name);
                                 mDataMap.put("bio", bio);
                                 mDataMap.put("username", username);
-
-
+                                mDataMap.put("email",Email);
 
 
                                 mDatabase.child("RegisteredUsers").child(user_id).updateChildren(mDataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -252,7 +277,6 @@ public class SetupAccountImageActivity extends AppCompatActivity {
     private void sendToStart() {
         Intent loginIntent = new Intent(SetupAccountImageActivity.this, StartActivity.class);
         startActivity(loginIntent);
-        finish();
     }
 
     @Override
@@ -269,4 +293,5 @@ public class SetupAccountImageActivity extends AppCompatActivity {
             }
         }
     }
+
 }

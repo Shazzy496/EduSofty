@@ -51,6 +51,7 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder
     private FirebaseUser currentUser;
     private FirebaseAuth mAuth;
     private FirebaseStorage mStorage;
+    private FirebaseUser user;
     private StorageReference storageReference;
     public String ActivityIdentity="VideoFeeds";
 
@@ -85,18 +86,9 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder
             user_id = currentUser.getUid();
             checkUsersVideoStopPosition(holder, videos);
         }
-
         holder.cvVideos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-                boolean Islogin = prefs.getBoolean("Islogin", false);//get value of last login status.
-
-                if (!Islogin) {
-                    Intent intent = new Intent(mContext, LoginActivity.class);
-                    mContext.startActivity(intent);
-                } else if (Islogin) {
                     DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("SuccessFul Users");
                     reference.orderByChild("id").equalTo(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -105,8 +97,12 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder
                                 Intent videoIntent = new Intent(mContext, VideoActivity.class);
                                 videoIntent.putExtra("video_id", videos.getVideo_id());
                                 videoIntent.putExtra("video", videos.getVideo());
-                                videoIntent.putExtra("video_duration", videos.getVideoDuration());
+                                videoIntent.putExtra("videoDuration", videos.getVideoDuration());
                                 videoIntent.putExtra("video_user_id", videos.getUser_id());
+                                videoIntent.putExtra("videoTitle",videos.getVideoTitle());
+                                videoIntent.putExtra("videoDescription",videos.getVideoDescription());
+                                videoIntent.putExtra("videoThumbnail",videos.getVideoThumbnail());
+                                videoIntent.putExtra("timestamp",videos.getTimestamp());
                                 mContext.startActivity(videoIntent);
 
                             } else {
@@ -127,7 +123,7 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder
                         }
                     });
 
-                }
+
             }
         });
     }
@@ -190,7 +186,6 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder
         TimeZone tz = TimeZone.getDefault();
         calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
-        java.util.Date currenTimeZone=new java.util.Date((long)1379487711*1000);
         holder.videoUploadDate.setText(sdf.format(videos.getTimestamp()));
 
         Glide.with(mContext).load(videos.getVideoThumbnail()).apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3))).into(holder.ivVideoBg);

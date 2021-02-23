@@ -18,10 +18,6 @@ public class NetworkReceiver extends BroadcastReceiver {
 
     boolean checkInternet(Context context) {
         ServiceManager serviceManager = new ServiceManager(context);
-        if (serviceManager.isNetworkAvailable()) {
-            return true;
-        } else {
-            return false;
-        }
+        return serviceManager.isNetworkAvailable();
     }
 }

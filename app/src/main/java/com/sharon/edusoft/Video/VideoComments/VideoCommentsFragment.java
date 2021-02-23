@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,12 +42,14 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sharon.edusoft.SetupAccount.RegisteredUsers;
+import com.sharon.edusoft.Video.VideoActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -71,49 +75,49 @@ public class VideoCommentsFragment extends Fragment {
     private FirebaseStorage mStorage;
     private StorageReference storageReference;
 
-    private String comment_id, video_id, comment_user_id,reply_user_id;
-    private String comment,name,photo,reply,reply_id;
+    private String comment_id, video_id,   video_user_id,comment_user_id;
+    private String comment;
     private String user_id;
-    private boolean openReplies = false;
-
     private Context mContext;
 
 
     public VideoCommentsFragment() {
         // Required empty public constructor
+        if (videoRepliesList!=null) videoRepliesList.clear();
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mContext = getActivity();
+        mContext =getActivity();
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_video_comments, container, false);
-        videoRepliesList.clear();
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(openRepliesFragmentBroadcastReceiver,
-                new IntentFilter("showReplies"));
+
+        video_user_id= requireActivity().getIntent().getStringExtra("video_user_id");
+//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+//        comment_user_id = preferences.getString("user_id","");
+//        comment_id = preferences.getString("comment_id","");
+//        video_id = preferences.getString("video_id","");
+
+        Bundle bundle = getArguments();
+        comment_user_id = Objects.requireNonNull(bundle).getString("user_id");
+        comment_id = bundle.getString("comment_id");
+        video_id = bundle.getString("video_id");
+
 
         flVideoComment1=view.findViewById(R.id.flVideoComment1);
         ibVideoCommentsClose = view.findViewById(R.id.ibVideoCommentsClose);
         civVideoCommentProfilePic = view.findViewById(R.id.civVideoCommentProfilePic);
         VideoComment = view.findViewById(R.id.VideoComment);
-        VideoCommentPersonName = view.findViewById(R.id.VideoCommentPersonName);
+        VideoCommentPersonName = view.findViewById(R.id.VideoCommentPersonName); //
         civCommentingProfilePic = view.findViewById(R.id.civCommentingProfilePic);
-        VideoCommentPersonName = view.findViewById(R.id.VideoCommentPersonName);
 
-        Collections.sort(videoRepliesList, new Comparator<VideoReplies>() {
-            @Override
-            public int compare(VideoReplies o1, VideoReplies o2) {
-                return o1.getReply_id().compareTo(o2.getReply_id());
-            }
-        });
         rvVideoCommentReplies = view.findViewById(R.id.rvVideoCommentReplies);
         linearLayoutManager = new LinearLayoutManager(mContext);
         rvVideoCommentReplies.setLayoutManager(linearLayoutManager);
         videoReplyAdapter = new VideoReplyAdapter(mContext, videoRepliesList);
         rvVideoCommentReplies.setAdapter(videoReplyAdapter);
-        linearLayoutManager.setStackFromEnd(true);
         linearLayoutManager.setReverseLayout(true);
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -121,16 +125,21 @@ public class VideoCommentsFragment extends Fragment {
         mStorage = FirebaseStorage.getInstance();
         storageReference = mStorage.getReferenceFromUrl("gs://edusoft-1b8b7.appspot.com");
 
+        if (getArguments()!=null){
+            comment_id = getArguments().getString("comment_id");
+            video_id = getArguments().getString("video_id");
+        }
+
         if (currentUser != null) {
             user_id = currentUser.getUid();
+
         }
+        setComment();
+        getReplies();
         ibVideoCommentsClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent openRepliesIntent = new Intent("openRepliesFragment");
-                openRepliesIntent.putExtra("openReplies", false);
-                LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).sendBroadcast(openRepliesIntent);
+                 getActivity().onBackPressed();
             }
         });
         flVideoComment1.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +148,6 @@ public class VideoCommentsFragment extends Fragment {
                 openReplyDialog();
             }
         });
-
         return view;
 
     }
@@ -172,19 +180,19 @@ public class VideoCommentsFragment extends Fragment {
         cvVideoComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(currentUser.getUid());
+                DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(user_id);
                 ref.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         RegisteredUsers users=snapshot.getValue(RegisteredUsers.class);
-                        assert users!=null;
-                        String name=snapshot.child("name").getValue().toString();
-                        String photo=snapshot.child("profile_image").getValue().toString();
-                        personName.setText(users.getName());
-                        if (users.getProfile_image().equals(""))
-                            Glide.with(mContext).load(R.drawable.default_profile_pic).into(commentpic);
+                        if (users!=null){
+                        String name=users.getName();
+                        String photo=users.getProfile_image();
+                        personName.setText(name);
+                        if (photo.equals(""))
+                            Glide.with(mContext).load(R.drawable.default_profile_pic).into(civCommentingProfilePic);
                         else {
-                            Glide.with(mContext).load(users.getProfile_image()).into(commentpic);
+                            Glide.with(mContext).load(photo).into(civCommentingProfilePic);
 
                         }
                         String reply = etVideoComment.getText().toString();
@@ -199,9 +207,10 @@ public class VideoCommentsFragment extends Fragment {
                             mCommentDataMap.put("timestamp", System.currentTimeMillis());
                             mCommentDataMap.put("user_id", user_id);
                             mCommentDataMap.put("video_id", video_id);
+                            mCommentDataMap.put("commentId",comment_id);
                             mCommentDataMap.put("name", name);
                             mCommentDataMap.put("photo", photo);
-                            mDatabase.child("videos").child(video_id).child("reply").child(reply_id).setValue(mCommentDataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            mDatabase.child("videos").child(video_id).child("comments").child(comment_id).child("reply").child(reply_id).setValue(mCommentDataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
@@ -209,7 +218,7 @@ public class VideoCommentsFragment extends Fragment {
                                     }
                                 }
                             });
-                        }
+                        }}
                     }
 
                     @Override
@@ -227,42 +236,19 @@ public class VideoCommentsFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 VideoComments videoComments=dataSnapshot.getValue(VideoComments.class);
-                comment = dataSnapshot.child("comment").getValue().toString();
-                comment_user_id = dataSnapshot.child("user_id").getKey();
-                name=dataSnapshot.child("name").getValue().toString();
-                photo=dataSnapshot.child("photo").getValue().toString();
-
-                VideoComment.setText(comment);
-                VideoCommentPersonName.setText(videoComments.getName());
-                if (videoComments.getPhoto().equals(""))
-                    Glide.with(mContext).load(R.drawable.default_profile_pic).into(civVideoCommentProfilePic);
-                else {
-                    Glide.with(mContext).load(videoComments.getPhoto()).into(civVideoCommentProfilePic);
-
-                }
-
-                DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(currentUser.getUid());
-                ref.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            RegisteredUsers users=dataSnapshot.getValue(RegisteredUsers.class);
-                            assert users!=null;
-                            if (users.getProfile_image().equals(""))
-                                Glide.with(mContext).load(R.drawable.default_profile_pic).into(civCommentingProfilePic);
-                            else {
-                                Glide.with(mContext).load(users.getProfile_image()).into(civCommentingProfilePic);
-
-                            }
+                if (videoComments!=null) {
+                        comment = videoComments.getComment();
+                        comment_user_id = videoComments.getUser_id();
+                        VideoComment.setText(comment);
+                        VideoCommentPersonName.setText(videoComments.getName());
+                        String profilePic=videoComments.getPhoto();
+                        if (profilePic.equals(""))
+                            Glide.with(mContext.getApplicationContext()).load(R.drawable.default_profile_pic).into(civVideoCommentProfilePic);
+                        else {
+                            Glide.with(mContext.getApplicationContext()).load(profilePic).into(civVideoCommentProfilePic);
 
                         }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
+                }
             }
 
             @Override
@@ -272,13 +258,17 @@ public class VideoCommentsFragment extends Fragment {
         });
     }
     private void getReplies() {
-        mDatabase.child("videos").child(video_id).child("reply").addChildEventListener(new ChildEventListener() {
+        mDatabase.child("videos").child(video_id).child("comments").child(comment_id).child("reply").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 if (snapshot.exists()) {
                     VideoReplies videoReplies = snapshot.getValue(VideoReplies.class);
-                    videoRepliesList.add(videoReplies);
-                    videoReplyAdapter.notifyDataSetChanged();
+                    if (videoReplies!=null) {
+                        if (videoReplies.getCommentId().equals(comment_id)) {
+                            videoRepliesList.add(videoReplies);
+                        }
+                        videoReplyAdapter.notifyDataSetChanged();
+                    }
                 }
             }
 
@@ -303,31 +293,5 @@ public class VideoCommentsFragment extends Fragment {
             }
         });
     }
-
-
-
-
-    public BroadcastReceiver openRepliesFragmentBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            comment_user_id=intent.getStringExtra("user_id");
-            comment_id = intent.getStringExtra("comment_id");
-            video_id = intent.getStringExtra("video_id");
-            openReplies = intent.getBooleanExtra("openReplies", false);
-
-            if (openReplies) {
-                setComment();
-            } else{
-                getReplies();
-            }
-
-        }
-
-
-    };
-
-
-
 
 }

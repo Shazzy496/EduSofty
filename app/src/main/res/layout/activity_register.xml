@@ -123,6 +123,7 @@
                 android:layout_marginBottom="4dp"
                 android:ems="10"
                 android:hint="********"
+
                 android:inputType="textPassword"
                 android:textColor="@color/colorWhite"
                 android:textColorHint="@color/colorHalfWhiteTransparent" />
@@ -150,6 +151,32 @@
                 android:ems="10"
                 android:hint="Name"
                 android:inputType="text"
+                android:textColorHint="@color/colorHalfWhiteTransparent"
+                android:textColor="@color/colorWhite"/>
+            <TextView
+                android:id="@+id/phoneNo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="4dp"
+                android:text="Phone Number"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="4dp"
+                android:ems="10"
+                android:hint="phone Number"
+                android:inputType="phone"
+                android:textColorHint="@color/colorHalfWhiteTransparent"
                 android:textColor="@color/colorWhite"/>
 
             <ProgressBar

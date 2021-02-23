@@ -35,11 +35,11 @@ import java.util.List;
 
 public class RegisterActivity extends AppCompatActivity{
 
-    private EditText etRegisterEmail, etRegisterPassword, name;
+    private EditText etRegisterEmail, etRegisterPassword, name,phone;
     private Button registerbutton;
     private ProgressBar loginPB;
 
-    private String Email, password, Name,user_id;
+    private String Email, password, Name,user_id,PhoneNo;
 
     private DatabaseReference mDatabase;
     private FirebaseUser currentUser;
@@ -55,6 +55,7 @@ public class RegisterActivity extends AppCompatActivity{
         etRegisterEmail = findViewById(R.id.etRegisterEmail);
         etRegisterPassword = findViewById(R.id.etRegisterPassword);
         name = findViewById(R.id.name);
+        phone=findViewById(R.id.phone);
         registerbutton = findViewById(R.id.registerbutton);
         loginPB = findViewById(R.id.loginPB);
 
@@ -85,6 +86,7 @@ public class RegisterActivity extends AppCompatActivity{
         Email = etRegisterEmail.getText().toString();
         password = etRegisterPassword.getText().toString();
         Name=name.getText().toString();
+        PhoneNo=phone.getText().toString();
         loginPB.setVisibility(View.VISIBLE);
         registerbutton.setVisibility(View.GONE);
 
@@ -100,50 +102,57 @@ public class RegisterActivity extends AppCompatActivity{
             loginPB.setVisibility(View.GONE);
             registerbutton.setVisibility(View.VISIBLE);
             name.setError("Please enter your name");
-        } else if(password.length()<8){
+        } else if (PhoneNo.isEmpty()){
+            loginPB.setVisibility(View.GONE);
+            registerbutton.setVisibility(View.VISIBLE);
+            phone.setError("Please enter your phone Number");
+        }
+            else if(password.length()<8){
             etRegisterPassword.setError("Password should be more than 8 characters");
         }
         else {
-            mAuth.createUserWithEmailAndPassword(Email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        String Name=name.getText().toString();
-                        String Email=etRegisterEmail.getText().toString();
-
-                        HashMap<String, Object> mDataMap = new HashMap<>();
-                        mDataMap.put("Email", Email);
-                        mDataMap.put("Name", Name);
-                        mDataMap.put("user_id", task.getResult().getUser().getUid());
-
-                        mDatabase.child("registration").child(task.getResult().getUser().getUid()).setValue(mDataMap)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        loginPB.setVisibility(View.GONE);
-                                        registerbutton.setVisibility(View.VISIBLE);
-                                        Intent intent=new Intent(RegisterActivity.this, SetupAccountImageActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                        startActivity(intent);
-                                    }
-                                }
-
-                        );
-                    }
-                    else {
-                        loginPB.setVisibility(View.GONE);
-                        registerbutton.setVisibility(View.VISIBLE);
-                        Toast.makeText(getApplicationContext(), "Error: " + task.getException(), Toast.LENGTH_LONG).show();
-                    }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    loginPB.setVisibility(View.GONE);
-                    registerbutton.setVisibility(View.VISIBLE);
-                    Toast.makeText(getApplicationContext(), "Failure: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            });
+//            mAuth.createUserWithEmailAndPassword(Email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+//                @Override
+//                public void onComplete(@NonNull Task<AuthResult> task) {
+//                    if (task.isSuccessful()) {
+//                        String Name=name.getText().toString();
+//                        String Email=etRegisterEmail.getText().toString();
+//
+//                        HashMap<String, Object> mDataMap = new HashMap<>();
+//                        mDataMap.put("Email", Email);
+//                        mDataMap.put("Name", Name);
+//                        mDataMap.put("PhoneNo",PhoneNo);
+//                        mDataMap.put("user_id", task.getResult().getUser().getUid());
+//
+//                        mDatabase.child("registration").child(task.getResult().getUser().getUid()).setValue(mDataMap)
+//                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                    @Override
+//                                    public void onSuccess(Void aVoid) {
+//                                        loginPB.setVisibility(View.GONE);
+//                                        registerbutton.setVisibility(View.VISIBLE);
+//                                        Intent intent=new Intent(RegisterActivity.this, SetupAccountImageActivity.class);
+//                                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+//                                        startActivity(intent);
+//                                    }
+//                                }
+//
+//                        );
+//                    }
+//                    else {
+//                        loginPB.setVisibility(View.GONE);
+//                        registerbutton.setVisibility(View.VISIBLE);
+//                        Toast.makeText(getApplicationContext(), "Error: " + task.getException(), Toast.LENGTH_LONG).show();
+//                    }
+//                }
+//            }
+//           ).addOnFailureListener(new OnFailureListener() {
+//               @Override
+//               public void onFailure(@NonNull Exception e) {
+//                    loginPB.setVisibility(View.GONE);
+//                    registerbutton.setVisibility(View.VISIBLE);
+//                    Toast.makeText(getApplicationContext(), "Failure: " + e.getMessage(), Toast.LENGTH_LONG).show();
+//                }
+//            });
         }
     }
 
@@ -151,7 +160,6 @@ public class RegisterActivity extends AppCompatActivity{
     private void sendToMain() {
         Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
         startActivity(mainIntent);
-        finish();
     }
 
 }

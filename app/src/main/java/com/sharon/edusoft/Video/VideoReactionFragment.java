@@ -3,6 +3,7 @@ package com.sharon.edusoft.Video;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -44,13 +45,13 @@ public class VideoReactionFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseStorage mStorage;
     private StorageReference storageReference;
-    
+
     public String video_id, user_id, video_user_id;
     public int video_like_count, video_dislike_count;
     public boolean userLikedVideo = false;
     public boolean userDislikedVideo = false;
-
-
+    private VideoReactionFragment mContext;
+    private Uri video;
     public VideoReactionFragment() {
         // Required empty public constructor
     }
@@ -63,6 +64,8 @@ public class VideoReactionFragment extends Fragment {
         if (getArguments() != null) {
             video_id = getArguments().getString("video_id");
             video_user_id = getArguments().getString("video_user_id");
+            video= Uri.parse(getArguments().getString("video"));
+
         } else {
             Toast.makeText(getActivity(), "Video Reaction get arguments are null", Toast.LENGTH_SHORT).show();
         }
@@ -74,7 +77,7 @@ public class VideoReactionFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        mContext=VideoReactionFragment.this;
         cvVideoDislike = view.findViewById(R.id.cvVideoDislike);
         cvVideoLike = view.findViewById(R.id.cvVideoLike);
         videoLike = view.findViewById(R.id.VideoLike);
@@ -216,6 +219,7 @@ public class VideoReactionFragment extends Fragment {
         mVideoLikeDataMap.put("timestamp", System.currentTimeMillis());
         mVideoLikeDataMap.put("video_user_id", video_user_id);
         mVideoLikeDataMap.put("liked_user_id", user_id);
+//        mVideoLikeDataMap.put("video",video);
         mDatabase.child("videos").child(video_id).child("likes").child(user_id).setValue(mVideoLikeDataMap);
         mDatabase.child("usersLikedVideos").child(user_id).child(video_id).setValue(mVideoLikeDataMap);
     }

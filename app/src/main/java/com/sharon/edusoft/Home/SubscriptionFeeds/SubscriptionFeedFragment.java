@@ -88,7 +88,6 @@ public class SubscriptionFeedFragment extends Fragment {
         linearLayoutManager = new LinearLayoutManager(mContext);
         rvSubscriptionFeeds.setAdapter(subscriptionFeedsAdapter);
         rvSubscriptionFeeds.setLayoutManager(linearLayoutManager);
-        linearLayoutManager.setStackFromEnd(true);
         linearLayoutManager.setReverseLayout(true);
 
 

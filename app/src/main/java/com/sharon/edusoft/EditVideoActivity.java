@@ -112,7 +112,7 @@ public class EditVideoActivity extends AppCompatActivity implements AdapterView.
             }
         });
 
-        ivEditInfoVideoThumbnail = findViewById(R.id.ivEditInfoVideoThumbnail);;
+        ivEditInfoVideoThumbnail = findViewById(R.id.ivEditInfoVideoThumbnail);
         editinfovideoreplacethumbbutton = findViewById(R.id.editinfovideoreplacethumbbutton);
         etEditInfoVideoTitle = findViewById(R.id.etEditInfoVideoTitle);
         etEditInfoVideoDesc = findViewById(R.id.etEditInfoVideoDesc);
@@ -133,16 +133,10 @@ public class EditVideoActivity extends AppCompatActivity implements AdapterView.
 
         List<String> categoriesList = new ArrayList<>();
         categoriesList.add("Select Category");
-        categoriesList.add("Entertainment");
-        categoriesList.add("Comedy");
-        categoriesList.add("Music");
-        categoriesList.add("Gaming");
-        categoriesList.add("Sports");
-        categoriesList.add("How to & Style");
-        categoriesList.add("Technology");
-        categoriesList.add("Autos & Vehicles");
-        categoriesList.add("Education");
-        categoriesList.add("Politics");
+        categoriesList.add("Drama");
+        categoriesList.add("English Setbook Plays");
+        categoriesList.add("Kiswahili Setbook Plays");
+        categoriesList.add("Other Setbook Plays");
 
         categoriesDataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, categoriesList);
         videoEditInfoSpinner.setAdapter(categoriesDataAdapter);

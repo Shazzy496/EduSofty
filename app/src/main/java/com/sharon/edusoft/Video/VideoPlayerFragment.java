@@ -103,7 +103,6 @@ public class VideoPlayerFragment extends Fragment {
         tvVideoCurrentVIdeoTIme = view.findViewById(R.id.tvVideoCurrentVIdeoTIme);
         ibVideoPlayPause = view.findViewById(R.id.ibVideoPlayPause);
         flVideoBottomPanel = view.findViewById(R.id.flVideoBottomPanel);
-        ibVideoFullScreen = view.findViewById(R.id.ibVideoFullScreen);
 
 
 
@@ -218,20 +217,6 @@ public class VideoPlayerFragment extends Fragment {
         setPendingIntent();
 
 //        showNotification(getActivity(), videoTitle, videoDesc, videoThumbnailBitmap);
-
-        ibVideoFullScreen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (videoId != null) {
-                    Intent videoFullScreenIntent = new Intent(getActivity(), VideoFullscreenActivity.class);
-                    videoFullScreenIntent.putExtra("video_id", videoId);
-                    videoFullScreenIntent.putExtra("video", video);
-                    videoFullScreenIntent.putExtra("stopPosition", vvVideo.getCurrentPosition());
-                    getActivity().startActivityForResult(videoFullScreenIntent, 1);
-                }
-
-            }
-        });
 
     }
 

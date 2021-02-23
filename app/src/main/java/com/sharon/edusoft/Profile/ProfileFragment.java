@@ -21,8 +21,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.sharon.edusoft.Library;
-import com.sharon.edusoft.LoginActivity;;
+import com.sharon.edusoft.MyLibrary.Library;
+import com.sharon.edusoft.LoginActivity;
 import com.sharon.edusoft.R;
 import com.sharon.edusoft.RegisterActivity;
 import com.sharon.edusoft.Settings.SettingsActivity;
@@ -38,6 +38,7 @@ import com.google.firebase.storage.StorageReference;
 import com.sharon.edusoft.Settings.SettingsChangeProfilePicActivity;
 import com.sharon.edusoft.SetupAccount.RegisteredUsers;
 import com.sharon.edusoft.SetupAccount.SetupAccountImageActivity;
+import com.sharon.edusoft.UserProfile;
 import com.sharon.edusoft.Video.registration;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -51,6 +52,7 @@ public class ProfileFragment extends Fragment {
     private Toolbar profiletoolbar;
 
     private CircleImageView civChannelProfilePic;
+
     private TextView personName, bio;
 
     private NestedScrollView nswProfile;
@@ -110,34 +112,10 @@ public class ProfileFragment extends Fragment {
         if (currentUser == null) {
             nswProfile.setVisibility(View.INVISIBLE);
 
-
-            LayoutInflater factory = LayoutInflater.from(getActivity());
-            View myView = factory.inflate(R.layout.dialog_account_login_register, null);
-            flProfileContentHeader.addView(myView);
-
-            Button register = myView.findViewById(R.id.register);
-            Button login = myView.findViewById(R.id.login);
-
-            login.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent loginIntent = new Intent(getActivity(), LoginActivity.class);
-                    startActivity(loginIntent);
-                }
-            });
-
-            register.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent registerIntent = new Intent(getActivity(), RegisterActivity.class);
-                    startActivity(registerIntent);
-                }
-            });
-
         }
         else {
             user_id = currentUser.getUid();
-            getUserDetails();
+//            getUserDetails();
             setProfilePic();
         }
 
@@ -161,7 +139,7 @@ public class ProfileFragment extends Fragment {
         cvMyChannel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(getActivity(), SetupAccountImageActivity.class);
+                Intent intent=new Intent(getActivity(), UserProfile.class);
                 startActivity(intent);
             }
         });
@@ -179,17 +157,20 @@ public class ProfileFragment extends Fragment {
 
 
     private void setProfilePic() {
-        DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(currentUser.getUid());
+        DatabaseReference ref=FirebaseDatabase.getInstance().getReference("RegisteredUsers").child(user_id);
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 RegisteredUsers users=snapshot.getValue(RegisteredUsers.class);
-                assert users!=null;
-                if (users.getProfile_image().equals(""))
-                    Glide.with(getActivity()).load(R.drawable.default_profile_pic).into(civChannelProfilePic);
-                else {
-                    Glide.with(getActivity()).load(users.getProfile_image()).into(civChannelProfilePic);
+                if (users!=null) {
+                    personName.setText(users.getName());
+                    bio.setText(users.getBio());
+                    if (users.getProfile_image().equals(""))
+                        Glide.with(getActivity()).load(R.drawable.default_profile_pic).into(civChannelProfilePic);
+                    else {
+                        Glide.with(getActivity()).load(users.getProfile_image()).into(civChannelProfilePic);
 
+                    }
                 }
             }
 
@@ -199,24 +180,24 @@ public class ProfileFragment extends Fragment {
             }
         });
     }
-
-    private void getUserDetails() {
-        mDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                registration reg =dataSnapshot.getValue(registration.class);
-                personName.setText(reg.getName());
-                bio.setText(reg.getEmail());
-                assert reg!=null;
-
-
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
+//
+//    private void getUserDetails() {
+//        mDatabase.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                registration reg =dataSnapshot.getValue(registration.class);
+//                if (reg!=null) {
+//                    personName.setText(reg.getName());
+//                    bio.setText(reg.getEmail());
+//                }
+//
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
+//    }
 
 //    @Override
 //    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {

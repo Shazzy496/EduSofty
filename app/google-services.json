@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "647199184518-didj498t67akmt187l5mrvta6kgnalv0.apps.googleusercontent.com",
+          "client_id": "647199184518-p56ds6krbscsm7ouddpm88253sevp6hj.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.sharon.edusoft",
-            "certificate_hash": "bcaad18eade951df8a94282ef4b5dce29f49d7dd"
+            "certificate_hash": "4955686f79ddddcfbb9c1f178b7144f489183330"
           }
         },
         {

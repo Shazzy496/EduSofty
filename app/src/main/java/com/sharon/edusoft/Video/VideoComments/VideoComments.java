@@ -4,6 +4,7 @@ public class VideoComments {
     private String comment = null;
     private String comment_id = null;
     private long timestamp;
+    private String comment_userId=null;
     private String user_id = null;
     private String video_id = null;
     private String name=null;
@@ -15,10 +16,11 @@ public class VideoComments {
 
     }
 
-    public VideoComments(String comment, String comment_id, long timestamp, String user_id, String video_id, String name, String photo) {
+    public VideoComments(String comment, String comment_id, long timestamp, String comment_userId, String user_id, String video_id, String name, String photo) {
         this.comment = comment;
         this.comment_id = comment_id;
         this.timestamp = timestamp;
+        this.comment_userId = comment_userId;
         this.user_id = user_id;
         this.video_id = video_id;
         this.name = name;
@@ -47,6 +49,14 @@ public class VideoComments {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getComment_userId() {
+        return comment_userId;
+    }
+
+    public void setComment_userId(String comment_userId) {
+        this.comment_userId = comment_userId;
     }
 
     public String getUser_id() {

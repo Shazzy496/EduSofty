@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/ic_forward_10_black_24dp">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cvMyVideos"
@@ -33,7 +34,7 @@
                     tools:srcCompat="@tools:sample/backgrounds/scenic[1]" />
 
                 <TextView
-                    android:id="@+id/tvMyVideosVideoDuration"
+                    android:id="@+id/MyVideosVideoDuration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|right"
@@ -48,7 +49,7 @@
             </FrameLayout>
 
             <TextView
-                android:id="@+id/tvMyVideosVideoTItle"
+                android:id="@+id/MyVideosVideoTItle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -63,28 +64,28 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/tvMyVideosVideoDesc"
+                android:id="@+id/MyVideosVideoDesc"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="TextView"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="@+id/tvMyVideosVideoTItle"
+                app:layout_constraintEnd_toEndOf="@+id/MyVideosVideoTItle"
                 app:layout_constraintStart_toEndOf="@+id/frameLayout"
-                app:layout_constraintTop_toBottomOf="@+id/tvMyVideosVideoTItle" />
+                app:layout_constraintTop_toBottomOf="@+id/MyVideosVideoTItle" />
 
             <TextView
-                android:id="@+id/tvMyVideosVideoUploadedDate"
+                android:id="@+id/MyVideosVideoUploadedDate"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="TextView"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/tvMyVideosVideoTItle"
+                app:layout_constraintEnd_toEndOf="@+id/MyVideosVideoTItle"
                 app:layout_constraintStart_toEndOf="@+id/frameLayout"
-                app:layout_constraintTop_toBottomOf="@+id/tvMyVideosVideoDesc"
+                app:layout_constraintTop_toBottomOf="@+id/MyVideosVideoDesc"
                 app:layout_constraintVertical_bias="1.0" />
 
             <ImageButton
@@ -94,9 +95,19 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:background="@null"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/delete"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_more_vert_black_24dp" />
+            <ImageButton
+                android:id="@+id/delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@null"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/delete" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>

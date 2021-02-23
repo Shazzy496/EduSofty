@@ -2,7 +2,6 @@ package com.sharon.edusoft.Home.SubscriptionFeeds;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.LayoutInflater;
@@ -13,13 +12,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.sharon.edusoft.DarajaMpesa.MpesaActivity;
-import com.sharon.edusoft.LoginActivity;
 import com.sharon.edusoft.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -52,6 +49,7 @@ public class SubscriptionFeedsAdapter extends RecyclerView.Adapter<SubscriptionF
     private FirebaseStorage mStorage;
     private StorageReference storageReference;
     private String user_id;
+    public String ActivityIdentity="VideoFeeds";
 
 
     public SubscriptionFeedsAdapter(Context mContext, List<SubscriptionFeeds> subscriptionFeedsList) {
@@ -88,14 +86,6 @@ public class SubscriptionFeedsAdapter extends RecyclerView.Adapter<SubscriptionF
         holder.cvVideos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-                boolean Islogin = prefs.getBoolean("Islogin", false);//get value of last login status.
-
-                if (!Islogin) {
-                    Intent intent = new Intent(mContext, LoginActivity.class);
-                    mContext.startActivity(intent);
-                } else if (Islogin) {
                     DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("SuccessFul Users");
                     reference.orderByChild("id").equalTo(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -106,14 +96,17 @@ public class SubscriptionFeedsAdapter extends RecyclerView.Adapter<SubscriptionF
                                 videoIntent.putExtra("video", subscriptionFeeds.getVideo());
                                 videoIntent.putExtra("video_duration", subscriptionFeeds.getVideoDuration());
                                 videoIntent.putExtra("video_user_id", subscriptionFeeds.getUser_id());
+                                videoIntent.putExtra("videoTitle",subscriptionFeeds.getVideoTitle());
+                                videoIntent.putExtra("videoDescription",subscriptionFeeds.getVideoDescription());
+                                videoIntent.putExtra("videoThumbnail",subscriptionFeeds.getVideoThumbnail());
+                                videoIntent.putExtra("timestamp",subscriptionFeeds.getTimestamp());
                                 mContext.startActivity(videoIntent);
 
                             } else {
 
                                 Intent mpesaIntent = new Intent(mContext, MpesaActivity.class);
+                                mpesaIntent.putExtra("identity",ActivityIdentity);
                                 mContext.startActivity(mpesaIntent);
-
-
                             }
                         }
 
@@ -123,7 +116,7 @@ public class SubscriptionFeedsAdapter extends RecyclerView.Adapter<SubscriptionF
                         }
                     });
 
-                }
+
             }
 
         });

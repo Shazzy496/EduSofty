@@ -2,14 +2,14 @@ package com.sharon.edusoft.Video;
 
 public class Videos {
 
-    private String video_id = null;
-    private String user_id = null;
-    private String video = null;
-    private String videoThumbnail = null;
-    private String videoCategory = null;
-    private String videoTitle = null;
-    private String videoDescription = null;
-    private String channelId = null;
+    private String video_id;
+    private String user_id;
+    private String video;
+    private String videoThumbnail;
+    private String videoCategory;
+    private String videoTitle;
+    private String videoDescription;
+    private String channelId;
     private int videoHeight;
     private int videoWidth;
     private long videoDuration;

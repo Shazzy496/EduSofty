@@ -12,7 +12,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.sharon.edusoft.LoginActivity;
 import com.sharon.edusoft.MainActivity;
+import com.sharon.edusoft.OTP_Receiver.OtpVerification;
 import com.sharon.edusoft.R;
 import com.sharon.edusoft.StartActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -70,7 +72,7 @@ public class SettingsActivity extends AppCompatActivity {
                 editor.clear();
                 editor.commit();
                 mAuth.signOut();
-                Intent mainIntent = new Intent(SettingsActivity.this, MainActivity.class);
+                Intent mainIntent = new Intent(SettingsActivity.this, OtpVerification.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(mainIntent);
 
@@ -78,28 +80,4 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.settings_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.logout_settings_menu_item:
-                sendToStart();
-                mAuth.signOut();
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void sendToStart() {
-        Intent startIntent = new Intent(SettingsActivity.this, StartActivity.class);
-        startActivity(startIntent);
-        finish();
-    }
 }

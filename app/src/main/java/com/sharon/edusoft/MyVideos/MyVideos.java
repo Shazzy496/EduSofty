@@ -2,13 +2,13 @@ package com.sharon.edusoft.MyVideos;
 
 public class MyVideos {
 
-    private String video_id = null;
-    private String user_id = null;
-    private String video = null;
-    private String videoThumbnail = null;
-    private String videoCategory = null;
-    private String videoTitle = null;
-    private String videoDesc = null;
+    private String video_id ;
+    private String user_id;
+    private String video;
+    private String videoThumbnail;
+    private String videoCategory;
+    private String videoTitle;
+    private String videoDesc;
     private int videoHeight;
     private int videoWidth;
     private long videoDuration;

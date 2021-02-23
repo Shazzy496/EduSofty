@@ -156,6 +156,26 @@
                         android:ems="10"
                         android:hint="Ex: - sharonronoh12"
                         android:inputType="textPersonName" />
+                    <TextView
+                        android:id="@+id/textView12"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:text="Email"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:ems="10"
+                        android:hint="Ex: - sharon@gmail.com"
+                        android:inputType="textEmailAddress" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

@@ -2,6 +2,8 @@ package com.sharon.edusoft.Home.Categories;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,8 +46,13 @@ public class CategoryNameAdapter extends RecyclerView.Adapter<CategoryNameAdapte
         holder.categoriesNameCV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent categoryIntent = new Intent(mContext, CategoriesActivity.class);
-                categoryIntent.putExtra("category_name", category_name);
+                SharedPreferences preferences= PreferenceManager.getDefaultSharedPreferences(mContext);
+                SharedPreferences.Editor editor=preferences.edit();
+                editor.putString("category_name", category_name);
+                editor.apply();
+//                categoryIntent.putExtra("category_name", category_name);
                 mContext.startActivity(categoryIntent);
 
             }
